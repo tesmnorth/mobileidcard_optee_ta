@@ -14,7 +14,7 @@ void generateAndSaveKey(uint32_t keyId)
 	TEEC_Context context;
 	TEEC_Session session;
 	TEEC_Operation operation;
-	TEEC_UUID uuid = TA_SMR_UUID;
+	TEEC_UUID uuid = TA_MIC_UUID;
 	uint32_t err_origin;
 
 	result = TEEC_InitializeContext(NULL, &context);
@@ -54,7 +54,7 @@ void deleteKey(uint32_t keyId)
 	TEEC_Context context;
 	TEEC_Session session;
 	TEEC_Operation operation;
-	TEEC_UUID uuid = TA_SMR_UUID;
+	TEEC_UUID uuid = TA_MIC_UUID;
 	uint32_t err_origin;
 
 	result = TEEC_InitializeContext(NULL, &context);
@@ -94,7 +94,7 @@ void getPublicKey(uint32_t keyId)
 	TEEC_Context context;
 	TEEC_Session session;
 	TEEC_Operation operation;
-	TEEC_UUID uuid = TA_SMR_UUID;
+	TEEC_UUID uuid = TA_MIC_UUID;
 	uint32_t err_origin;
 
 	size_t keySize = 512;

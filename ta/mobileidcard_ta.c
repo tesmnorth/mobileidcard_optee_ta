@@ -4,7 +4,7 @@
 #include <tee_internal_api.h>
 #include <tee_internal_api_extensions.h>
 
-#include "include/mobilidcard_ta.h"
+#include "include/mobileidcard_ta.h"
 
 static TEE_Result check_obj(TEE_ObjectInfo *o1, TEE_ObjectInfo *o2)
 {
