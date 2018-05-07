@@ -252,6 +252,10 @@ static TEE_Result get_public_key(uint32_t param_types, TEE_Param params[4])
 	memcpy(exponent, bigIntExp, (bigIntLen * sizeof(TEE_BigInt)));
 	memcpy(modulus, bigIntMod, (bigIntLen * sizeof(TEE_BigInt)));
 
+	for (long unsigned int i = 0; i < (bigIntLen * sizeof(TEE_BigInt)); i++) {
+		DMSG("i : %d value : %d", i, exponent[i]);
+	}
+
 	cleanup1:
 	TEE_Free(bigIntExp);
 	TEE_Free(bigIntMod);
