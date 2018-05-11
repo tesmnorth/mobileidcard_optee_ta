@@ -166,8 +166,15 @@ static TEE_Result get_public_key(uint32_t param_types, TEE_Param params[4])
 	TEE_Result result = TEE_SUCCESS;
 	size_t keySize = 512;
 
-	uint8_t exponent[keySize] = params[1].memref.buffer;
-	uint8_t modulus[keySize] = params[2].memref.buffer;
+	uint8_t *exponent;
+	memset(exponent, 0, keySize * sizeof(uint8_t *));
+
+	uint8_t * modulus;
+	memset(modulus, 0, keySize * sizeof(uint8_t *));
+
+
+	exponent = params[1].memref.buffer;
+	modulus = params[2].memref.buffer;
 
 	TEE_ObjectHandle keyHandle = (TEE_ObjectHandle)NULL;
 
@@ -175,8 +182,11 @@ static TEE_Result get_public_key(uint32_t param_types, TEE_Param params[4])
 	uint32_t exponentBuffLen = 0;
 	uint32_t modulusBuffLen = 0;
 
-	uint8_t exponentBuff[keySize] = {0};
-	uint8_t modulusBuff[keySize] = {0};
+	uint8_t *exponentBuff;
+	memset(exponentBuff, 0, keySize * sizeof(uint8_t *));
+
+	uint8_t * modulusBuff;
+	memset(modulusBuff, 0, keySize * sizeof(uint8_t *));
 
 	uint32_t flags = TEE_DATA_FLAG_ACCESS_READ |
 			TEE_DATA_FLAG_ACCESS_WRITE |
@@ -223,8 +233,8 @@ static TEE_Result get_public_key(uint32_t param_types, TEE_Param params[4])
 		goto cleanup;
 	}
 
-	for (int i = 0; i < exponentBuffLen; i++) {
-		DMSG(" index %d exponent %c", i, exponentBuff[i]);
+	for (unsigned int i = 0; i < exponentBuffLen; i++) {
+		DMSG(" index %u exponent %c", i, exponentBuff[i]);
 	}
 
 	memcpy(exponent, exponentBuff, exponentBuffLen);
