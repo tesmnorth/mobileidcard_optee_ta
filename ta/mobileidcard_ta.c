@@ -164,21 +164,19 @@ static TEE_Result delete_key(uint32_t param_types, TEE_Param params[4])
 static TEE_Result get_public_key(uint32_t param_types, TEE_Param params[4])
 {
 	TEE_Result result = TEE_SUCCESS;
-	TEE_BigInt *exponent = (TEE_BigInt *)params[1].memref.buffer;
-	TEE_BigInt *modulus = (TEE_BigInt *)params[2].memref.buffer;
+	size_t keySize = 512;
+
+	uint8_t exponent[keySize] = params[1].memref.buffer;
+	uint8_t modulus[keySize] = params[2].memref.buffer;
 
 	TEE_ObjectHandle keyHandle = (TEE_ObjectHandle)NULL;
-	TEE_BigInt *bigIntExp;
-	TEE_BigInt *bigIntMod;
 
-	size_t keySize = 512;
-	size_t bigIntLen = 0;
 	uint32_t keyId = 0;
-	uint32_t bufferLen = 0;
-	uint32_t modLen = 0;
+	uint32_t exponentBuffLen = 0;
+	uint32_t modulusBuffLen = 0;
 
-	uint8_t buffer[512] = {0};
-	uint8_t mod[512] = {0};
+	uint8_t exponentBuff[keySize] = {0};
+	uint8_t modulusBuff[keySize] = {0};
 
 	uint32_t flags = TEE_DATA_FLAG_ACCESS_READ |
 			TEE_DATA_FLAG_ACCESS_WRITE |
@@ -206,60 +204,35 @@ static TEE_Result get_public_key(uint32_t param_types, TEE_Param params[4])
 		goto cleanup;
 	}
 
-	bigIntLen = TEE_BigIntSizeInU32(keySize);
+	exponentBuffLen = sizeof(exponentBuff);
 
-	bigIntExp = (TEE_BigInt *) TEE_Malloc(bigIntLen * sizeof(TEE_BigInt), TEE_MALLOC_FILL_ZERO);
-	TEE_BigIntInit(bigIntExp, keySize);
-
-	bigIntMod =(TEE_BigInt *)TEE_Malloc(bigIntLen * sizeof(TEE_BigInt), TEE_MALLOC_FILL_ZERO);
-	TEE_BigIntInit(bigIntMod, keySize);
-
-	bufferLen = sizeof(buffer);
-
-	result = TEE_GetObjectBufferAttribute(keyHandle, TEE_ATTR_RSA_PUBLIC_EXPONENT, buffer, &bufferLen);
+	result = TEE_GetObjectBufferAttribute(keyHandle, TEE_ATTR_RSA_PUBLIC_EXPONENT, exponentBuff, &exponentBuffLen);
 
 	if (result != TEE_SUCCESS)
 	{
 		EMSG("Failed to get object buffer attribute. TEE_GetObjectBufferAttribute res: 0x%x", result);
-		goto cleanup1;
+		goto cleanup;
 	}
 
-	modLen = sizeof(mod);
-	result = TEE_GetObjectBufferAttribute(keyHandle, TEE_ATTR_RSA_MODULUS, mod, &modLen);
+	modulusBuffLen = sizeof(modulusBuff);
+	result = TEE_GetObjectBufferAttribute(keyHandle, TEE_ATTR_RSA_MODULUS, modulusBuff, &modulusBuffLen);
 
 	if (result != TEE_SUCCESS)
 	{
 		EMSG("Failed to get object buffer attribute(Modulus). !TEE_GetObjectBufferAttribute res: 0x%x", result);
-		goto cleanup1;
+		goto cleanup;
 	}
 
-	result = TEE_BigIntConvertFromOctetString(bigIntExp, buffer, bufferLen, 0);
-
-	if (result != TEE_SUCCESS)
-	{
-		EMSG("TEE_BigIntConvertFromOctetString failed!TEE_BigIntConvertFromOctetString res: 0x%x", result);
-		goto cleanup1;
+	for (int i = 0; i < exponentBuffLen; i++) {
+		DMSG(" index %d exponent %c", i, exponentBuff[i]);
 	}
 
-	result = TEE_BigIntConvertFromOctetString(bigIntMod, mod, modLen, 0);
+	memcpy(exponent, exponentBuff, exponentBuffLen);
+	memcpy(modulus, modulusBuff, modulusBuffLen);
 
-	if (result != TEE_SUCCESS)
-	{
-		EMSG("TEE_BigIntConvertFromOctetString failed!TEE_BigIntConvertFromOctetString res: 0x%x", result);
-		goto cleanup1;
-	}
-
-	memcpy(exponent, bigIntExp, (bigIntLen * sizeof(TEE_BigInt)));
-	memcpy(modulus, bigIntMod, (bigIntLen * sizeof(TEE_BigInt)));
-
-	for (long unsigned int i = 0; i < (sizeof(exponent)); i++) {
-		DMSG("i : %lu value : %u", i, exponent[i]);
-	}
-
-	cleanup1:
-	TEE_Free(bigIntExp);
-	TEE_Free(bigIntMod);
 	cleanup:
+	TEE_CloseAndDeletePersistentObject(keyHandle);
+
 	return result;
 }
 
