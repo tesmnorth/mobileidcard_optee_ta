@@ -164,16 +164,14 @@ static TEE_Result delete_key(uint32_t param_types, TEE_Param params[4])
 static TEE_Result get_public_key(uint32_t param_types, TEE_Param params[4])
 {
 	TEE_Result result = TEE_SUCCESS;
+	TEE_ObjectHandle keyHandle = (TEE_ObjectHandle)NULL;
 	size_t keySize = 512;
 
 	uint8_t *exponent = (uint8_t *)TEE_Malloc(keySize * sizeof(uint8_t *), TEE_MALLOC_FILL_ZERO);
 	uint8_t *modulus = (uint8_t *)TEE_Malloc(keySize * sizeof(uint8_t *), TEE_MALLOC_FILL_ZERO);
 
-
 	exponent = params[1].memref.buffer;
 	modulus = params[2].memref.buffer;
-
-	TEE_ObjectHandle keyHandle = (TEE_ObjectHandle)NULL;
 
 	uint32_t keyId = 0;
 	uint32_t exponentBuffLen = 0;
