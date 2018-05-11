@@ -167,18 +167,12 @@ static TEE_Result get_public_key(uint32_t param_types, TEE_Param params[4])
 	TEE_ObjectHandle keyHandle = (TEE_ObjectHandle)NULL;
 	size_t keySize = 512;
 
-	uint8_t *exponent = (uint8_t *)TEE_Malloc(keySize * sizeof(uint8_t *), TEE_MALLOC_FILL_ZERO);
-	uint8_t *modulus = (uint8_t *)TEE_Malloc(keySize * sizeof(uint8_t *), TEE_MALLOC_FILL_ZERO);
-
-	exponent = params[1].memref.buffer;
-	modulus = params[2].memref.buffer;
-
 	uint32_t keyId = 0;
 	uint32_t exponentBuffLen = 0;
 	uint32_t modulusBuffLen = 0;
 
-	uint8_t *exponentBuff = (uint8_t *)TEE_Malloc(keySize * sizeof(uint8_t *), TEE_MALLOC_FILL_ZERO);
-	uint8_t * modulusBuff = (uint8_t *)TEE_Malloc(keySize * sizeof(uint8_t *), TEE_MALLOC_FILL_ZERO);
+	uint8_t *exponent = params[1].memref.buffer;
+	uint8_t *modulus = params[2].memref.buffer;
 
 	uint32_t flags = TEE_DATA_FLAG_ACCESS_READ |
 			TEE_DATA_FLAG_ACCESS_WRITE |
@@ -205,6 +199,9 @@ static TEE_Result get_public_key(uint32_t param_types, TEE_Param params[4])
 		EMSG("Failed to open object handle : 0x%x", result);
 		goto cleanup;
 	}
+
+	uint8_t *exponentBuff = (uint8_t *)TEE_Malloc(keySize * sizeof(uint8_t *), TEE_MALLOC_FILL_ZERO);
+	uint8_t * modulusBuff = (uint8_t *)TEE_Malloc(keySize * sizeof(uint8_t *), TEE_MALLOC_FILL_ZERO);
 
 	exponentBuffLen = sizeof(exponentBuff);
 
