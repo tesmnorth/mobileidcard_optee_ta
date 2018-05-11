@@ -166,11 +166,8 @@ static TEE_Result get_public_key(uint32_t param_types, TEE_Param params[4])
 	TEE_Result result = TEE_SUCCESS;
 	size_t keySize = 512;
 
-	uint8_t *exponent;
-	memset(exponent, 0, keySize * sizeof(uint8_t *));
-
-	uint8_t * modulus;
-	memset(modulus, 0, keySize * sizeof(uint8_t *));
+	uint8_t *exponent = (uint8_t *)TEE_Malloc(keySize * sizeof(uint8_t *), TEE_MALLOC_FILL_ZERO);
+	uint8_t *modulus = (uint8_t *)TEE_Malloc(keySize * sizeof(uint8_t *), TEE_MALLOC_FILL_ZERO);
 
 
 	exponent = params[1].memref.buffer;
@@ -182,11 +179,8 @@ static TEE_Result get_public_key(uint32_t param_types, TEE_Param params[4])
 	uint32_t exponentBuffLen = 0;
 	uint32_t modulusBuffLen = 0;
 
-	uint8_t *exponentBuff;
-	memset(exponentBuff, 0, keySize * sizeof(uint8_t *));
-
-	uint8_t * modulusBuff;
-	memset(modulusBuff, 0, keySize * sizeof(uint8_t *));
+	uint8_t *exponentBuff = (uint8_t *)TEE_Malloc(keySize * sizeof(uint8_t *), TEE_MALLOC_FILL_ZERO);
+	uint8_t * modulusBuff = (uint8_t *)TEE_Malloc(keySize * sizeof(uint8_t *), TEE_MALLOC_FILL_ZERO);
 
 	uint32_t flags = TEE_DATA_FLAG_ACCESS_READ |
 			TEE_DATA_FLAG_ACCESS_WRITE |
