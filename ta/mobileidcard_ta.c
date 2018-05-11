@@ -170,6 +170,8 @@ static TEE_Result get_public_key(uint32_t param_types, TEE_Param params[4])
 	uint32_t keyId = 0;
 	uint32_t exponentBuffLen = 0;
 	uint32_t modulusBuffLen = 0;
+	uint8_t *exponentBuff;
+	uint8_t *modulusBuff;
 
 	uint8_t *exponent = params[1].memref.buffer;
 	uint8_t *modulus = params[2].memref.buffer;
@@ -200,8 +202,8 @@ static TEE_Result get_public_key(uint32_t param_types, TEE_Param params[4])
 		goto cleanup;
 	}
 
-	uint8_t *exponentBuff = (uint8_t *)TEE_Malloc(keySize * sizeof(uint8_t *), TEE_MALLOC_FILL_ZERO);
-	uint8_t * modulusBuff = (uint8_t *)TEE_Malloc(keySize * sizeof(uint8_t *), TEE_MALLOC_FILL_ZERO);
+	exponentBuff = (uint8_t *)TEE_Malloc(keySize * sizeof(uint8_t *), TEE_MALLOC_FILL_ZERO);
+	modulusBuff = (uint8_t *)TEE_Malloc(keySize * sizeof(uint8_t *), TEE_MALLOC_FILL_ZERO);
 
 	exponentBuffLen = sizeof(exponentBuff);
 
