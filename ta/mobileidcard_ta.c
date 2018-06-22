@@ -170,11 +170,9 @@ static TEE_Result get_public_key(uint32_t param_types, TEE_Param params[4])
 	uint32_t keyId = 0;
 	uint32_t exponentBuffLen = 0;
 	uint32_t modulusBuffLen = 0;
+
 	uint8_t *exponentBuff;
 	uint8_t *modulusBuff;
-
-	uint8_t *exponent = params[1].memref.buffer;
-	uint8_t *modulus = params[2].memref.buffer;
 
 	uint32_t flags = TEE_DATA_FLAG_ACCESS_READ |
 			TEE_DATA_FLAG_ACCESS_WRITE |
@@ -228,8 +226,11 @@ static TEE_Result get_public_key(uint32_t param_types, TEE_Param params[4])
 		DMSG(" index %u exponent %c", i, exponentBuff[i]);
 	}
 
-	memcpy(exponent, exponentBuff, exponentBuffLen);
-	memcpy(modulus, modulusBuff, modulusBuffLen);
+	memcpy(params[1].memref.buffer, exponentBuff, exponentBuffLen);
+	memcpy(params[2].memref.buffer, modulusBuff, modulusBuffLen);
+
+	params[1].memref.size = exponentBuffLen;
+	params[2].memref.size = modulusBuffLen;
 
 	cleanup:
 	TEE_CloseAndDeletePersistentObject(keyHandle);
