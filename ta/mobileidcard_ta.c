@@ -171,8 +171,8 @@ static TEE_Result get_public_key(uint32_t param_types, TEE_Param params[4])
 	uint32_t exponentBuffLen = 0;
 	uint32_t modulusBuffLen = 0;
 
-	uint8_t *exponentBuff;
-	uint8_t *modulusBuff;
+	uint32_t *exponentBuff;
+	uint32_t *modulusBuff;
 
 	uint32_t flags = TEE_DATA_FLAG_ACCESS_READ |
 			TEE_DATA_FLAG_ACCESS_WRITE |
@@ -200,8 +200,8 @@ static TEE_Result get_public_key(uint32_t param_types, TEE_Param params[4])
 		goto cleanup;
 	}
 
-	exponentBuff = (uint8_t *)TEE_Malloc(keySize * sizeof(uint8_t *), TEE_MALLOC_FILL_ZERO);
-	modulusBuff = (uint8_t *)TEE_Malloc(keySize * sizeof(uint8_t *), TEE_MALLOC_FILL_ZERO);
+	exponentBuff = (uint32_t *)TEE_Malloc(keySize * sizeof(uint32_t *), TEE_MALLOC_FILL_ZERO);
+	modulusBuff = (uint32_t *)TEE_Malloc(keySize * sizeof(uint32_t *), TEE_MALLOC_FILL_ZERO);
 
 	exponentBuffLen = sizeof(exponentBuff);
 
@@ -233,6 +233,8 @@ static TEE_Result get_public_key(uint32_t param_types, TEE_Param params[4])
 	params[2].memref.size = modulusBuffLen;
 
 	cleanup:
+	TEE_Free(exponentBuff);
+	TEE_Free(modulusBuff);
 	TEE_CloseAndDeletePersistentObject(keyHandle);
 
 	return result;
