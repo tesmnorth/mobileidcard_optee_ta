@@ -169,6 +169,7 @@ static TEE_Result get_public_key_exponent(uint32_t param_types, TEE_Param params
 	TEE_ObjectHandle rsa_keypair = (TEE_ObjectHandle)NULL;
 	size_t key_size;
 	TEE_BigInt *bigInt;
+	TEE_BigInt *out_exponent;
 	size_t bigInt_len;
 
 	uint32_t rsa_keypair_id = 0;
@@ -191,7 +192,7 @@ static TEE_Result get_public_key_exponent(uint32_t param_types, TEE_Param params
 		return TEE_ERROR_BAD_PARAMETERS;
 
 	rsa_keypair_id = params[0].value.a;
-	TEE_BigInt *out_exponent = (TEE_BigInt *)params[1].memref.buffer;
+	out_exponent = (TEE_BigInt *)params[1].memref.buffer;
 
 	result = TEE_OpenPersistentObject(TEE_STORAGE_PRIVATE, &rsa_keypair_id, sizeof(rsa_keypair_id),
 			flags, &rsa_keypair);
@@ -243,6 +244,7 @@ static TEE_Result get_public_key_modulus(uint32_t param_types, TEE_Param params[
 	TEE_ObjectHandle rsa_keypair = (TEE_ObjectHandle)NULL;
 	size_t key_size;
 	TEE_BigInt *bigInt;
+	TEE_BigInt *out_modulus;
 	size_t bigInt_len;
 
 	uint32_t rsa_keypair_id = 0;
@@ -265,7 +267,7 @@ static TEE_Result get_public_key_modulus(uint32_t param_types, TEE_Param params[
 		return TEE_ERROR_BAD_PARAMETERS;
 
 	rsa_keypair_id = params[0].value.a;
-	TEE_BigInt *out_modulus = (TEE_BigInt *)params[1].memref.buffer;
+	out_modulus = (TEE_BigInt *)params[1].memref.buffer;
 
 	result = TEE_OpenPersistentObject(TEE_STORAGE_PRIVATE, &rsa_keypair_id, sizeof(rsa_keypair_id),
 			flags, &rsa_keypair);
