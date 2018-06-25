@@ -218,6 +218,8 @@ static TEE_Result get_public_key(uint32_t param_types, TEE_Param params[4])
 
 	if (result != TEE_SUCCESS)
 	{
+		EMSG("Modulus  %lu", modulusBuffLen);
+		EMSG("Exponent  %lu", exponentBuffLen);
 		EMSG("Failed to get object buffer attribute(Modulus). TEE_GetObjectBufferAttribute res: 0x%x", result);
 		goto cleanup;
 	}
