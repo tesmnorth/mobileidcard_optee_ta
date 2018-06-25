@@ -6,6 +6,7 @@
 
 #define TA_GENERATE_KEY_CMD 0
 #define TA_DELETE_KEY_CMD 1
-#define TA_GET_PUBLICKEY_CMD 2
+#define TA_GET_PUBLICKEY_EXP_CMD 2
+#define TA_GET_PUBLICKEY_MOD_CMD 3
 
 #endif
