@@ -1,4 +1,3 @@
-
 #define STR_TRACE_USER_TA "MOBILEIDCARD"
 #include <string.h>
 #include <tee_internal_api.h>
@@ -164,17 +163,16 @@ static TEE_Result delete_key(uint32_t param_types, TEE_Param params[4])
 static TEE_Result get_public_key_exponent(uint32_t param_types, TEE_Param params[4])
 {
 	TEE_Result result = TEE_SUCCESS;
-	uint8_t buffer[512];
-	uint32_t buffer_len;
 	TEE_ObjectHandle rsa_keypair = (TEE_ObjectHandle)NULL;
-	size_t key_size;
 	TEE_BigInt *bigInt;
 	TEE_BigInt *out_exponent;
+
+	uint8_t buffer[512];
+	uint32_t buffer_len;
+	uint32_t rsa_keypair_id;
+
+	size_t key_size;
 	size_t bigInt_len;
-
-	uint32_t rsa_keypair_id = 0;
-
-	key_size = 512;
 
 	uint32_t flags = TEE_DATA_FLAG_ACCESS_READ |
 			TEE_DATA_FLAG_ACCESS_WRITE |
@@ -190,6 +188,8 @@ static TEE_Result get_public_key_exponent(uint32_t param_types, TEE_Param params
 
 	if (param_types != exp_param_types)
 		return TEE_ERROR_BAD_PARAMETERS;
+
+	key_size = 512;
 
 	rsa_keypair_id = params[0].value.a;
 	out_exponent = (TEE_BigInt *)params[1].memref.buffer;
@@ -239,17 +239,16 @@ static TEE_Result get_public_key_exponent(uint32_t param_types, TEE_Param params
 static TEE_Result get_public_key_modulus(uint32_t param_types, TEE_Param params[4])
 {
 	TEE_Result result = TEE_SUCCESS;
-	uint8_t buffer[512];
-	uint32_t buffer_len;
 	TEE_ObjectHandle rsa_keypair = (TEE_ObjectHandle)NULL;
-	size_t key_size;
 	TEE_BigInt *bigInt;
 	TEE_BigInt *out_modulus;
+
+	uint8_t buffer[512];
+	uint32_t buffer_len;
+	uint32_t rsa_keypair_id;
+
+	size_t key_size;
 	size_t bigInt_len;
-
-	uint32_t rsa_keypair_id = 0;
-
-	key_size = 512;
 
 	uint32_t flags = TEE_DATA_FLAG_ACCESS_READ |
 			TEE_DATA_FLAG_ACCESS_WRITE |
@@ -265,6 +264,8 @@ static TEE_Result get_public_key_modulus(uint32_t param_types, TEE_Param params[
 
 	if (param_types != exp_param_types)
 		return TEE_ERROR_BAD_PARAMETERS;
+
+	key_size = 512;
 
 	rsa_keypair_id = params[0].value.a;
 	out_modulus = (TEE_BigInt *)params[1].memref.buffer;
