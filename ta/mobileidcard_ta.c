@@ -165,14 +165,14 @@ static TEE_Result get_public_key_exponent_modulus(uint32_t param_types, TEE_Para
 	TEE_Result result = TEE_SUCCESS;
 	TEE_ObjectHandle rsa_keypair = (TEE_ObjectHandle)NULL;
 
-	uint8_t buffer1[512];
+	uint8_t buffer1[KEY_SIZE];
 	uint32_t buffer_len1;
 
-	uint8_t buffer2[512];
+	uint8_t buffer2[KEY_SIZE];
 	uint32_t buffer_len2;
 
-	uint8_t *out_buffer_exp[512];
-	uint8_t *out_buffer_mod[512];
+	uint8_t *out_buffer_exp;
+	uint8_t *out_buffer_mod;
 
 	uint32_t rsa_keypair_id;
 
@@ -192,6 +192,10 @@ static TEE_Result get_public_key_exponent_modulus(uint32_t param_types, TEE_Para
 		return TEE_ERROR_BAD_PARAMETERS;
 
 	rsa_keypair_id = params[0].value.a;
+
+	out_buffer_exp = malloc(KEY_SIZE * sizeof(uint8_t));
+	out_buffer_mod = malloc(KEY_SIZE *sizeof(uint8_t));
+
 	out_buffer_exp = (uint8_t *)params[1].memref.buffer;
 	out_buffer_mod = (uint8_t *)params[2].memref.buffer;
 
