@@ -160,15 +160,20 @@ static TEE_Result delete_key(uint32_t param_types, TEE_Param params[4])
 	return result;
 }
 
-static TEE_Result get_public_key_exponent(uint32_t param_types, TEE_Param params[4])
+static TEE_Result get_public_key_exponent_modulus(uint32_t param_types, TEE_Param params[4])
 {
 	TEE_Result result = TEE_SUCCESS;
 	TEE_ObjectHandle rsa_keypair = (TEE_ObjectHandle)NULL;
-	TEE_BigInt *bigInt;
-	TEE_BigInt *out_exponent;
 
-	uint8_t buffer[512];
-	uint32_t buffer_len;
+	uint8_t buffer1[512];
+	uint32_t buffer_len1;
+
+	uint8_t buffer2[512];
+	uint32_t buffer_len2;
+
+	uint8_t out_buffer_exp;
+	uint8_t out_buffer_mod;
+
 	uint32_t rsa_keypair_id;
 
 	size_t key_size;
@@ -183,83 +188,7 @@ static TEE_Result get_public_key_exponent(uint32_t param_types, TEE_Param params
 	uint32_t exp_param_types = TEE_PARAM_TYPES(
 			TEE_PARAM_TYPE_VALUE_INPUT,
 			TEE_PARAM_TYPE_MEMREF_OUTPUT,
-			TEE_PARAM_TYPE_NONE,
-			TEE_PARAM_TYPE_NONE);
-
-	if (param_types != exp_param_types)
-		return TEE_ERROR_BAD_PARAMETERS;
-
-	key_size = 512;
-
-	rsa_keypair_id = params[0].value.a;
-	out_exponent = (TEE_BigInt *)params[1].memref.buffer;
-
-	result = TEE_OpenPersistentObject(TEE_STORAGE_PRIVATE, &rsa_keypair_id, sizeof(rsa_keypair_id),
-			flags, &rsa_keypair);
-
-	if (result != TEE_SUCCESS)
-	{
-		EMSG("Failed to open object handle : 0x%x", result);
-		goto cleanup;
-	}
-
-	/* initialize the BigInt structure */
-	bigInt_len = TEE_BigIntSizeInU32(key_size);
-	bigInt = (TEE_BigInt *)TEE_Malloc(bigInt_len * sizeof(TEE_BigInt), TEE_MALLOC_FILL_ZERO);
-	TEE_BigIntInit(bigInt, key_size);
-
-	/*get the exponent value, as an octet string */
-	buffer_len = sizeof(buffer);
-	result = TEE_GetObjectBufferAttribute(rsa_keypair, TEE_ATTR_RSA_PUBLIC_EXPONENT, buffer, &buffer_len);
-
-	if (result != TEE_SUCCESS)
-	{
-		EMSG("Failed to get object buffer attribute. TEE_GetObjectBufferAttribute res: 0x%x", result);
-		goto cleanup_1;
-	}
-
-	result = TEE_BigIntConvertFromOctetString(bigInt, buffer, buffer_len, 0);
-
-	if (result != TEE_SUCCESS)
-	{
-		EMSG("Failed to convert bigIng from octet string res: 0x%x", result);
-		goto cleanup_1;
-	}
-
-	memcpy(out_exponent, bigInt, (bigInt_len * sizeof(TEE_BigInt)));
-
-	cleanup_1:
-	TEE_Free(bigInt);
-	cleanup:
-	TEE_CloseAndDeletePersistentObject(rsa_keypair);
-
-	return result;
-}
-
-static TEE_Result get_public_key_modulus(uint32_t param_types, TEE_Param params[4])
-{
-	TEE_Result result = TEE_SUCCESS;
-	TEE_ObjectHandle rsa_keypair = (TEE_ObjectHandle)NULL;
-	TEE_BigInt *bigInt;
-	TEE_BigInt *out_modulus;
-
-	uint8_t buffer[512];
-	uint32_t buffer_len;
-	uint32_t rsa_keypair_id;
-
-	size_t key_size;
-	size_t bigInt_len;
-
-	uint32_t flags = TEE_DATA_FLAG_ACCESS_READ |
-			TEE_DATA_FLAG_ACCESS_WRITE |
-			TEE_DATA_FLAG_ACCESS_WRITE_META |
-			TEE_DATA_FLAG_SHARE_READ |
-			TEE_DATA_FLAG_SHARE_WRITE;
-
-	uint32_t exp_param_types = TEE_PARAM_TYPES(
-			TEE_PARAM_TYPE_VALUE_INPUT,
 			TEE_PARAM_TYPE_MEMREF_OUTPUT,
-			TEE_PARAM_TYPE_NONE,
 			TEE_PARAM_TYPE_NONE);
 
 	if (param_types != exp_param_types)
@@ -268,7 +197,8 @@ static TEE_Result get_public_key_modulus(uint32_t param_types, TEE_Param params[
 	key_size = 512;
 
 	rsa_keypair_id = params[0].value.a;
-	out_modulus = (TEE_BigInt *)params[1].memref.buffer;
+	out_buffer_exp = (uint8_t *)params[1].memref.buffer;
+	out_buffer_mod = (uint8_t *)params[2].memref.buffer;
 
 	result = TEE_OpenPersistentObject(TEE_STORAGE_PRIVATE, &rsa_keypair_id, sizeof(rsa_keypair_id),
 			flags, &rsa_keypair);
@@ -279,33 +209,35 @@ static TEE_Result get_public_key_modulus(uint32_t param_types, TEE_Param params[
 		goto cleanup;
 	}
 
-	/* initialize the BigInt structure */
-	bigInt_len = TEE_BigIntSizeInU32(key_size);
-	bigInt = (TEE_BigInt *)TEE_Malloc(bigInt_len * sizeof(TEE_BigInt), TEE_MALLOC_FILL_ZERO);
-	TEE_BigIntInit(bigInt, key_size);
-
 	/*get the exponent value, as an octet string */
-	buffer_len = sizeof(buffer);
-	result = TEE_GetObjectBufferAttribute(rsa_keypair, TEE_ATTR_RSA_MODULUS, buffer, &buffer_len);
+	buffer_len1 = sizeof(buffer1);
+	DMSG("Buffer1 Len : %u", buffer_len1);
+	result = TEE_GetObjectBufferAttribute(rsa_keypair, TEE_ATTR_RSA_PUBLIC_EXPONENT, buffer1, &buffer_len1);
+	DMSG("Buffer1 Len (After): %u", buffer_len1);
+	if (result != TEE_SUCCESS)
+	{
+		EMSG("Failed to get object buffer attribute. TEE_GetObjectBufferAttribute res: 0x%x", result);
+		goto cleanup;
+	}
+
+	/*get the modulus value, as an octet string */
+	buffer_len2 = sizeof(buffer2);
+	DMSG("Buffer2 Len : %u", buffer_len2);
+	result = TEE_GetObjectBufferAttribute(rsa_keypair, TEE_ATTR_RSA_MODULUS, buffer2, &buffer_len2);
+	DMSG("Buffer2 Len (After) : %u", buffer_len2);
 
 	if (result != TEE_SUCCESS)
 	{
 		EMSG("Failed to get object buffer attribute. TEE_GetObjectBufferAttribute res: 0x%x", result);
-		goto cleanup_1;
+		goto cleanup;
 	}
 
-	result = TEE_BigIntConvertFromOctetString(bigInt, buffer, buffer_len, 0);
+	memcpy(out_buffer_exp, buffer1, (buffer_len1 * sizeof(uint8_t)));
+	params[1].memref.size = buffer_len1;
 
-	if (result != TEE_SUCCESS)
-	{
-		EMSG("Failed to convert bigIng from octet string res: 0x%x", result);
-		goto cleanup_1;
-	}
+	memcpy(out_buffer_mod, buffer2, (buffer_len2 * sizeof(uint8_t)));
+	params[2].memref.size = buffer_len2;
 
-	memcpy(out_modulus, bigInt, (bigInt_len * sizeof(TEE_BigInt)));
-
-	cleanup_1:
-	TEE_Free(bigInt);
 	cleanup:
 	TEE_CloseAndDeletePersistentObject(rsa_keypair);
 
@@ -324,10 +256,8 @@ TEE_Result TA_InvokeCommandEntryPoint(void *sess_ctx, uint32_t cmd_id,
 		return generate_and_save_key(param_types, params);
 	case TA_DELETE_KEY_CMD:
 		return delete_key(param_types, params);
-	case TA_GET_PUBLICKEY_EXP_CMD:
-		return get_public_key_exponent(param_types, params);
-	case TA_GET_PUBLICKEY_MOD_CMD:
-		return get_public_key_modulus(param_types, params);
+	case TA_GET_PUBLICKEY_EXP_MOD_CMD:
+		return get_public_key_exponent_modulus(param_types, params);
 	default:
 		return TEE_ERROR_BAD_PARAMETERS;
 	}
