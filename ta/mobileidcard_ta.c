@@ -171,8 +171,8 @@ static TEE_Result get_public_key_exponent_modulus(uint32_t param_types, TEE_Para
 	uint8_t buffer2[512];
 	uint32_t buffer_len2;
 
-	uint8_t *out_buffer_exp;
-	uint8_t *out_buffer_mod;
+	uint8_t *out_buffer_exp[512];
+	uint8_t *out_buffer_mod[512];
 
 	uint32_t rsa_keypair_id;
 
