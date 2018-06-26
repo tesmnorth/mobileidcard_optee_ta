@@ -226,9 +226,19 @@ static TEE_Result get_public_key_exponent_modulus(uint32_t param_types, TEE_Para
 	params[1].memref.buffer = buffer1;
 	params[1].memref.size = buffer_len1;
 
-	DMSG("Buffer 2 : %s", buffer2);
+	DMSG("Buffer 1 : \n");
+	for (int i = 0; i < buffer_len1; i++) {
+		DMSG("%i", buffer1[i]);
+	}
+
+	DMSG("\n");
 	params[2].memref.buffer = buffer2;
 	params[2].memref.size = buffer_len2;
+
+	DMSG("Buffer 2 : \n");
+	for (int i = 0; i < buffer_len2; i++) {
+		DMSG("%i", buffer2[i]);
+	}
 
 	cleanup:
 	TEE_CloseAndDeletePersistentObject(rsa_keypair);
