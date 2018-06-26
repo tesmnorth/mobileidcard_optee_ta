@@ -193,12 +193,6 @@ static TEE_Result get_public_key_exponent_modulus(uint32_t param_types, TEE_Para
 
 	rsa_keypair_id = params[0].value.a;
 
-	out_buffer_exp = TEE_Malloc(KEY_SIZE * sizeof(uint8_t), 0);
-	out_buffer_mod = TEE_Malloc(KEY_SIZE *sizeof(uint8_t), 0);
-
-	out_buffer_exp = (uint8_t *)params[1].memref.buffer;
-	out_buffer_mod = (uint8_t *)params[2].memref.buffer;
-
 	result = TEE_OpenPersistentObject(TEE_STORAGE_PRIVATE, &rsa_keypair_id, sizeof(rsa_keypair_id),
 			flags, &rsa_keypair);
 
@@ -231,10 +225,10 @@ static TEE_Result get_public_key_exponent_modulus(uint32_t param_types, TEE_Para
 		goto cleanup;
 	}
 
-	memcpy(out_buffer_exp, buffer1, (buffer_len1 * sizeof(uint8_t)));
+	params[1].memref.buffer = buffer1;
 	params[1].memref.size = buffer_len1;
 
-	memcpy(out_buffer_mod, buffer2, (buffer_len2 * sizeof(uint8_t)));
+	params[2].memref.buffer = buffer2;
 	params[2].memref.size = buffer_len2;
 
 	cleanup:
