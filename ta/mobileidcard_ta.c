@@ -171,13 +171,10 @@ static TEE_Result get_public_key_exponent_modulus(uint32_t param_types, TEE_Para
 	uint8_t buffer2[512];
 	uint32_t buffer_len2;
 
-	uint8_t out_buffer_exp;
-	uint8_t out_buffer_mod;
+	uint8_t *out_buffer_exp;
+	uint8_t *out_buffer_mod;
 
 	uint32_t rsa_keypair_id;
-
-	size_t key_size;
-	size_t bigInt_len;
 
 	uint32_t flags = TEE_DATA_FLAG_ACCESS_READ |
 			TEE_DATA_FLAG_ACCESS_WRITE |
@@ -193,8 +190,6 @@ static TEE_Result get_public_key_exponent_modulus(uint32_t param_types, TEE_Para
 
 	if (param_types != exp_param_types)
 		return TEE_ERROR_BAD_PARAMETERS;
-
-	key_size = 512;
 
 	rsa_keypair_id = params[0].value.a;
 	out_buffer_exp = (uint8_t *)params[1].memref.buffer;
