@@ -193,8 +193,8 @@ static TEE_Result get_public_key_exponent_modulus(uint32_t param_types, TEE_Para
 
 	rsa_keypair_id = params[0].value.a;
 
-	out_buffer_exp = malloc(KEY_SIZE * sizeof(uint8_t));
-	out_buffer_mod = malloc(KEY_SIZE *sizeof(uint8_t));
+	out_buffer_exp = TEE_Malloc(KEY_SIZE * sizeof(uint8_t), 0);
+	out_buffer_mod = TEE_Malloc(KEY_SIZE *sizeof(uint8_t), 0);
 
 	out_buffer_exp = (uint8_t *)params[1].memref.buffer;
 	out_buffer_mod = (uint8_t *)params[2].memref.buffer;
