@@ -222,8 +222,7 @@ static TEE_Result get_public_key_exponent_modulus(uint32_t param_types, TEE_Para
 		goto cleanup;
 	}
 
-	DMSG("Buffer 1 : %s", buffer1);
-	params[1].memref.buffer = buffer1;
+	TEE_MemMove(params[1].memref.buffer, buffer1, buffer_len1);
 	params[1].memref.size = buffer_len1;
 
 	DMSG("Buffer 1 : \n");
@@ -231,8 +230,7 @@ static TEE_Result get_public_key_exponent_modulus(uint32_t param_types, TEE_Para
 		DMSG("%i", buffer1[i]);
 	}
 
-	DMSG("\n");
-	params[2].memref.buffer = buffer2;
+	TEE_MemMove(params[2].memref.buffer, buffer2, buffer_len2);
 	params[2].memref.size = buffer_len2;
 
 	DMSG("Buffer 2 : \n");
