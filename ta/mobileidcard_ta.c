@@ -165,11 +165,11 @@ static TEE_Result get_public_key_exponent_modulus(uint32_t param_types, TEE_Para
 	TEE_Result result = TEE_SUCCESS;
 	TEE_ObjectHandle rsa_keypair = (TEE_ObjectHandle)NULL;
 
-	uint8_t buffer1[KEY_SIZE];
-	uint32_t buffer_len1;
+	void *buffer1;
+	uint32_t buffer_len1 = 0;
 
-	uint8_t buffer2[KEY_SIZE];
-	uint32_t buffer_len2;
+	void *buffer2;
+	uint32_t buffer_len2 = 0;
 
 	uint32_t rsa_keypair_id;
 
@@ -189,6 +189,9 @@ static TEE_Result get_public_key_exponent_modulus(uint32_t param_types, TEE_Para
 		return TEE_ERROR_BAD_PARAMETERS;
 
 	rsa_keypair_id = params[0].value.a;
+	buffer1 = params[1].memref.buffer;
+	buffer2 = params[2].memref.buffer;
+
 
 	result = TEE_OpenPersistentObject(TEE_STORAGE_PRIVATE, &rsa_keypair_id, sizeof(rsa_keypair_id),
 			flags, &rsa_keypair);
@@ -222,7 +225,6 @@ static TEE_Result get_public_key_exponent_modulus(uint32_t param_types, TEE_Para
 		goto cleanup;
 	}
 
-	params[1].memref.buffer = &buffer1;
 	params[1].memref.size = buffer_len1;
 
 	DMSG("Buffer 1 : \n");
@@ -231,7 +233,6 @@ static TEE_Result get_public_key_exponent_modulus(uint32_t param_types, TEE_Para
 	}
 
 	params[2].memref.buffer = &buffer2;
-	params[2].memref.size = buffer_len2;
 
 	DMSG("Buffer 2 : \n");
 	for (unsigned int i = 0; i < buffer_len2; i++) {
