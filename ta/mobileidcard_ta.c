@@ -232,7 +232,7 @@ static TEE_Result get_public_key_exponent_modulus(uint32_t param_types, TEE_Para
 		DMSG("%i", buffer1[i]);
 	}
 
-	params[2].memref.buffer = &buffer2;
+	params[2].memref.size = buffer_len2;
 
 	DMSG("Buffer 2 : \n");
 	for (unsigned int i = 0; i < buffer_len2; i++) {
