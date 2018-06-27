@@ -206,7 +206,7 @@ static TEE_Result get_public_key_exponent_modulus(uint32_t param_types, TEE_Para
 
 	/*get the exponent value, as an octet string */
 	DMSG("Buffer1 Len : %u", buffer_len1);
-	result = TEE_GetObjectBufferAttribute(rsa_keypair, TEE_ATTR_RSA_PUBLIC_EXPONENT, &buffer1, &buffer_len1);
+	result = TEE_GetObjectBufferAttribute(rsa_keypair, TEE_ATTR_RSA_PUBLIC_EXPONENT, buffer1, &buffer_len1);
 	DMSG("Buffer1 Len (After): %u", buffer_len1);
 	if (result != TEE_SUCCESS)
 	{
@@ -216,7 +216,7 @@ static TEE_Result get_public_key_exponent_modulus(uint32_t param_types, TEE_Para
 
 	/*get the modulus value, as an octet string */
 	DMSG("Buffer2 Len : %u", buffer_len2);
-	result = TEE_GetObjectBufferAttribute(rsa_keypair, TEE_ATTR_RSA_MODULUS, &buffer2, &buffer_len2);
+	result = TEE_GetObjectBufferAttribute(rsa_keypair, TEE_ATTR_RSA_MODULUS, buffer2, &buffer_len2);
 	DMSG("Buffer2 Len (After) : %u", buffer_len2);
 
 	if (result != TEE_SUCCESS)
