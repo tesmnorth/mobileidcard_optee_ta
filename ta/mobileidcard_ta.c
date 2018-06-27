@@ -165,10 +165,10 @@ static TEE_Result get_public_key_exponent_modulus(uint32_t param_types, TEE_Para
 	TEE_Result result = TEE_SUCCESS;
 	TEE_ObjectHandle rsa_keypair = (TEE_ObjectHandle)NULL;
 
-	void *buffer1;
+	uint8_t *buffer1;
 	uint32_t buffer_len1 = 0;
 
-	void *buffer2;
+	uint8_t *buffer2;
 	uint32_t buffer_len2 = 0;
 
 	uint32_t rsa_keypair_id;
