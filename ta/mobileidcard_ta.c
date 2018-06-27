@@ -74,7 +74,7 @@ static TEE_Result generate_and_save_key(uint32_t param_types, TEE_Param params[4
 
 	uint32_t exp_param_types = TEE_PARAM_TYPES(
 			TEE_PARAM_TYPE_VALUE_INPUT,
-			TEE_PARAM_TYPE_NONE,
+			TEE_PARAM_TYPE_VALUE_OUTPUT,
 			TEE_PARAM_TYPE_NONE,
 			TEE_PARAM_TYPE_NONE);
 
@@ -114,6 +114,7 @@ static TEE_Result generate_and_save_key(uint32_t param_types, TEE_Param params[4
 		goto cleanup2;
 	}
 
+	params[1].value.a = 1;
 	TEE_CloseObject(persistentKey);
 	cleanup2:
 	TEE_FreeTransientObject(transientKey);
@@ -135,7 +136,7 @@ static TEE_Result delete_key(uint32_t param_types, TEE_Param params[4])
 
 	uint32_t exp_param_types = TEE_PARAM_TYPES(
 			TEE_PARAM_TYPE_VALUE_INPUT,
-			TEE_PARAM_TYPE_NONE,
+			TEE_PARAM_TYPE_VALUE_OUTPUT,
 			TEE_PARAM_TYPE_NONE,
 			TEE_PARAM_TYPE_NONE);
 
@@ -153,6 +154,7 @@ static TEE_Result delete_key(uint32_t param_types, TEE_Param params[4])
 		goto cleanup;
 	}
 
+	params[1].value.a = 1;
 	TEE_CloseAndDeletePersistentObject(keyHandle);
 
 	cleanup:
@@ -182,7 +184,7 @@ static TEE_Result get_public_key_exponent_modulus(uint32_t param_types, TEE_Para
 			TEE_PARAM_TYPE_VALUE_INPUT,
 			TEE_PARAM_TYPE_MEMREF_OUTPUT,
 			TEE_PARAM_TYPE_MEMREF_OUTPUT,
-			TEE_PARAM_TYPE_NONE);
+			TEE_PARAM_TYPE_VALUE_INPUT);
 
 	if (param_types != exp_param_types)
 		return TEE_ERROR_BAD_PARAMETERS;
@@ -238,6 +240,7 @@ static TEE_Result get_public_key_exponent_modulus(uint32_t param_types, TEE_Para
 		DMSG("%i", buffer2[i]);
 	}
 
+	params[3].value.a = 1;
 	cleanup:
 	TEE_CloseAndDeletePersistentObject(rsa_keypair);
 
