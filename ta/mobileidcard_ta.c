@@ -64,7 +64,6 @@ static TEE_Result generate_and_save_key(uint32_t param_types, TEE_Param params[4
 	TEE_ObjectHandle persistentKey = (TEE_ObjectHandle)NULL;
 	TEE_ObjectInfo keyInfo;
 	TEE_ObjectInfo keyInfo2;
-	size_t keySize = 512;
 	uint32_t keyId = 0;
 
 	uint32_t flags = TEE_DATA_FLAG_ACCESS_READ |
@@ -84,14 +83,14 @@ static TEE_Result generate_and_save_key(uint32_t param_types, TEE_Param params[4
 	if (param_types != exp_param_types)
 		return TEE_ERROR_BAD_PARAMETERS;
 
-	result = TEE_AllocateTransientObject(TEE_TYPE_RSA_KEYPAIR, keySize, &transientKey);
+	result = TEE_AllocateTransientObject(TEE_TYPE_RSA_KEYPAIR, KEY_SIZE, &transientKey);
 
 	if (result != TEE_SUCCESS) {
 		EMSG("Failed to allocate transient object handle : 0x%x", result);
 		goto cleanup1;
 	}
 
-	result = TEE_GenerateKey(transientKey, keySize, NULL, 0);
+	result = TEE_GenerateKey(transientKey, KEY_SIZE, NULL, 0);
 
 	if (result != TEE_SUCCESS) {
 		EMSG("Failed to generate a transient key: 0x%x", result);

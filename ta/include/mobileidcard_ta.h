@@ -8,6 +8,6 @@
 #define TA_DELETE_KEY_CMD 1
 #define TA_GET_PUBLICKEY_EXP_MOD_CMD 2
 
-#define KEY_SIZE 512
+#define KEY_SIZE 2048
 
 #endif
