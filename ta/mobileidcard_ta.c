@@ -192,6 +192,8 @@ static TEE_Result get_public_key_exponent_modulus(uint32_t param_types, TEE_Para
 	buffer1 = params[1].memref.buffer;
 	buffer2 = params[2].memref.buffer;
 
+	buffer_len1 = params[1].memref.size;
+	buffer_len2 = params[2].memref.size;
 
 	result = TEE_OpenPersistentObject(TEE_STORAGE_PRIVATE, &rsa_keypair_id, sizeof(rsa_keypair_id),
 			flags, &rsa_keypair);
@@ -203,7 +205,6 @@ static TEE_Result get_public_key_exponent_modulus(uint32_t param_types, TEE_Para
 	}
 
 	/*get the exponent value, as an octet string */
-	buffer_len1 = sizeof(buffer1);
 	DMSG("Buffer1 Len : %u", buffer_len1);
 	result = TEE_GetObjectBufferAttribute(rsa_keypair, TEE_ATTR_RSA_PUBLIC_EXPONENT, &buffer1, &buffer_len1);
 	DMSG("Buffer1 Len (After): %u", buffer_len1);
@@ -214,7 +215,6 @@ static TEE_Result get_public_key_exponent_modulus(uint32_t param_types, TEE_Para
 	}
 
 	/*get the modulus value, as an octet string */
-	buffer_len2 = sizeof(buffer2);
 	DMSG("Buffer2 Len : %u", buffer_len2);
 	result = TEE_GetObjectBufferAttribute(rsa_keypair, TEE_ATTR_RSA_MODULUS, &buffer2, &buffer_len2);
 	DMSG("Buffer2 Len (After) : %u", buffer_len2);
