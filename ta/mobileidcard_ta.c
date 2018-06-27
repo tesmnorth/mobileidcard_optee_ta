@@ -184,7 +184,7 @@ static TEE_Result get_public_key_exponent_modulus(uint32_t param_types, TEE_Para
 			TEE_PARAM_TYPE_VALUE_INPUT,
 			TEE_PARAM_TYPE_MEMREF_OUTPUT,
 			TEE_PARAM_TYPE_MEMREF_OUTPUT,
-			TEE_PARAM_TYPE_VALUE_INPUT);
+			TEE_PARAM_TYPE_VALUE_OUTPUT);
 
 	if (param_types != exp_param_types)
 		return TEE_ERROR_BAD_PARAMETERS;
