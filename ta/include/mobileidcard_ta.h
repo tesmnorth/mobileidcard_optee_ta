@@ -7,6 +7,7 @@
 #define TA_GENERATE_KEY_CMD 0
 #define TA_DELETE_KEY_CMD 1
 #define TA_GET_PUBLICKEY_EXP_MOD_CMD 2
+#define TA_VERIFY_CMD 3
 
 #define KEY_SIZE 2048
 
