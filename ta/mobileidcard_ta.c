@@ -397,7 +397,7 @@ static TEE_Result get_signed_public_key(uint32_t param_types, TEE_Param params[4
 		goto cleanup;
 	}
 
-	result = TEE_GetObjectBufferAttribute(signed_pk_handle, TEE_ATTR_RSA_PUBLIC_EXPONENT, buffer, &buffer_len);
+	result = TEE_GetObjectBufferAttribute(signed_pk_handle, TEE_ATTR_SECRET_VALUE, buffer, &buffer_len);
 	if (result != TEE_SUCCESS)
 	{
 		EMSG("Failed to get object buffer attribute. TEE_GetObjectBufferAttribute res: 0x%x", result);
