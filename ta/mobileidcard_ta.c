@@ -288,7 +288,8 @@ static TEE_Result save_signed_public_key(uint32_t param_types, TEE_Param params[
 	TEE_ObjectHandle persistentKey = (TEE_ObjectHandle)NULL;
 	TEE_ObjectInfo keyInfo;
 	TEE_ObjectInfo keyInfo2;
-	uint8_t *signed_pk;
+	TEE_Attribute secret_value;
+
 	uint32_t signedPublicKeyId = 0;
 	uint32_t signed_pk_len = 0;
 
@@ -305,7 +306,6 @@ static TEE_Result save_signed_public_key(uint32_t param_types, TEE_Param params[
 			TEE_PARAM_TYPE_NONE);
 
 	signedPublicKeyId = SIGNED_PUBLIC_KEY_ID;
-	signed_pk = params[0].memref.buffer;
 	signed_pk_len = params[0].memref.size;
 
 	if (param_types != exp_param_types)
@@ -319,7 +319,6 @@ static TEE_Result save_signed_public_key(uint32_t param_types, TEE_Param params[
 		goto cleanup;
 	}
 
-	TEE_Attribute secret_value;
 	secret_value.content.ref.buffer = params[0].memref.buffer;
 	secret_value.content.ref.length = params[0].memref.size;
 
