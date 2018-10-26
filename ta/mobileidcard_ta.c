@@ -311,6 +311,7 @@ static TEE_Result save_signed_public_key(uint32_t param_types, TEE_Param params[
 	if (param_types != exp_param_types)
 		return TEE_ERROR_BAD_PARAMETERS;
 
+	DMSG("TESSSSSSSSSSSSSSSSSSSTTTTTTTTTTTTTTTTTTTT %i", signed_pk_len);
 	result = TEE_AllocateTransientObject(TEE_TYPE_DATA, signed_pk_len, &transientKey);
 
 	if (result != TEE_SUCCESS) {
