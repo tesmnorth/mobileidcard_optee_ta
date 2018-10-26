@@ -398,7 +398,7 @@ static TEE_Result get_signed_public_key(uint32_t param_types, TEE_Param params[4
 		goto cleanup1;
 	}
 
-	params[0].memref.size = buffer_len;
+	params[0].memref.size = read_bytes;
 	params[1].value.a = 1;
 
 	cleanup1:
