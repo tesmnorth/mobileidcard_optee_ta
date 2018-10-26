@@ -341,7 +341,7 @@ static TEE_Result get_signed_public_key(uint32_t param_types, TEE_Param params[4
 	TEE_ObjectHandle signed_pk_handle = (TEE_ObjectHandle)NULL;
 	TEE_ObjectInfo object_info;
 
-	size_t read_bytes;
+	uint32_t *read_bytes;
 	uint8_t *buffer;
 	uint32_t buffer_len = 0;
 
