@@ -286,8 +286,6 @@ static TEE_Result save_signed_public_key(uint32_t param_types, TEE_Param params[
 	TEE_Result result = TEE_SUCCESS;
 	TEE_ObjectHandle transientKey = (TEE_ObjectHandle)NULL;
 	TEE_ObjectHandle persistentKey = (TEE_ObjectHandle)NULL;
-	TEE_ObjectInfo keyInfo;
-	TEE_ObjectInfo keyInfo2;
 	TEE_Attribute secret_value;
 
 	uint32_t signedPublicKeyId = 0;
@@ -309,14 +307,6 @@ static TEE_Result save_signed_public_key(uint32_t param_types, TEE_Param params[
 	if (param_types != exp_param_types)
 		return TEE_ERROR_BAD_PARAMETERS;
 
-	result = TEE_AllocateTransientObject(TEE_TYPE_DATA, 0, &transientKey);
-
-	if (result != TEE_SUCCESS) {
-		EMSG("Failed to allocate transient object handle : 0x%x", result);
-		params[1].value.a = 0;
-		goto cleanup;
-	}
-
 	secret_value.content.ref.buffer = params[0].memref.buffer;
 	secret_value.content.ref.length = params[0].memref.size;
 
@@ -327,29 +317,17 @@ static TEE_Result save_signed_public_key(uint32_t param_types, TEE_Param params[
 		goto cleanup1;
 	}
 
-	TEE_GetObjectInfo1(transientKey, &keyInfo);
 	result = TEE_CreatePersistentObject(TEE_STORAGE_PRIVATE, &signedPublicKeyId, sizeof(signedPublicKeyId),
 			flags, transientKey, NULL, 0, &persistentKey);
-
 	if (result != TEE_SUCCESS) {
 		EMSG("Failed to create a persistent key: 0x%x", result);
 		params[1].value.a = 0;
 		goto cleanup1;
 	}
 
-	TEE_GetObjectInfo1(persistentKey, &keyInfo2);
-	result = check_obj(&keyInfo, &keyInfo2);
-
-	if (result != TEE_SUCCESS) {
-		EMSG("keyInfo and keyInfo2 are different");
-		params[1].value.a = 0;
-		goto cleanup2;
-	}
-
 	params[1].value.a = 1;
-
-	cleanup2:
 	TEE_CloseObject(persistentKey);
+
 	cleanup1:
 	TEE_FreeTransientObject(transientKey);
 	cleanup:
