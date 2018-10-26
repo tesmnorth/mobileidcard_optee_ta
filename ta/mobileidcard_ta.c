@@ -339,7 +339,9 @@ static TEE_Result get_signed_public_key(uint32_t param_types, TEE_Param params[4
 {
 	TEE_Result result = TEE_SUCCESS;
 	TEE_ObjectHandle signed_pk_handle = (TEE_ObjectHandle)NULL;
+	TEE_ObjectInfo object_info;
 
+	size_t read_bytes;
 	uint8_t *buffer;
 	uint32_t buffer_len = 0;
 
@@ -367,19 +369,32 @@ static TEE_Result get_signed_public_key(uint32_t param_types, TEE_Param params[4
 
 	result = TEE_OpenPersistentObject(TEE_STORAGE_PRIVATE, &signed_pk_id, sizeof(signed_pk_id),
 			flags, &signed_pk_handle);
-
 	if (result != TEE_SUCCESS)
 	{
 		EMSG("Failed to open object handle : 0x%x", result);
-		params[2].value.a = 0;
+		params[1].value.a = 0;
 		goto cleanup;
 	}
 
-	result = TEE_GetObjectBufferAttribute(signed_pk_handle, TEE_ATTR_SECRET_VALUE, buffer, &buffer_len);
-	if (result != TEE_SUCCESS)
+	result = TEE_GetObjectInfo1(signed_pk_handle, &object_info);
+	if (result != TEE_SUCCESS ) {
+		EMSG("Failed to get object info. TEE_GetObjectInfo1 res:0x%x ", result);
+		params[1].value.a = 0;
+		goto cleanup1;
+	}
+
+	if (object_info.dataSize > buffer_len)
 	{
-		EMSG("Failed to get object buffer attribute. TEE_GetObjectBufferAttribute res: 0x%x", result);
-		params[2].value.a = 0;
+		params[0].memref.size = object_info.dataSize;
+		result = TEE_ERROR_SHORT_BUFFER;
+		goto cleanup1;
+	}
+
+	result  = TEE_ReadObjectData(signed_pk_handle, buffer, object_info.dataSize, &read_bytes);
+
+	if (result != TEE_SUCCESS || read_bytes != object_info.dataSize) {
+		EMSG("TEE_ReadObjectData failed 0x%08x, read %u over %u", result, read_bytes, object_info.dataSize);
+		params[1].value.a = 0;
 		goto cleanup1;
 	}
 
