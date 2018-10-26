@@ -311,7 +311,7 @@ static TEE_Result save_signed_public_key(uint32_t param_types, TEE_Param params[
 	if (param_types != exp_param_types)
 		return TEE_ERROR_BAD_PARAMETERS;
 
-	result = TEE_AllocateTransientObject(TEE_TYPE_GENERIC_SECRET, signed_pk_len, &transientKey);
+	result = TEE_AllocateTransientObject(TEE_TYPE_DATA, signed_pk_len, &transientKey);
 
 	if (result != TEE_SUCCESS) {
 		EMSG("Failed to allocate transient object handle : 0x%x", result);
@@ -319,10 +319,13 @@ static TEE_Result save_signed_public_key(uint32_t param_types, TEE_Param params[
 		goto cleanup;
 	}
 
-	result = TEE_WriteObjectData(transientKey, signed_pk, signed_pk_len);
+	TEE_Attribute secret_value;
+	secret_value.content.ref.buffer = params[0].memref.buffer;
+	secret_value.content.ref.length = params[0].memref.size;
 
+	result = TEE_PopulateTransientObject(transientKey, &secret_value, 1);
 	if (result != TEE_SUCCESS) {
-		EMSG("Failed to write signed public key to a transient key: 0x%x", result);
+		EMSG("Failed to populated signed public key to a transient key: 0x%x", result);
 		params[1].value.a = 0;
 		goto cleanup1;
 	}
