@@ -314,7 +314,7 @@ static TEE_Result save_signed_public_key(uint32_t param_types, TEE_Param params[
 	if (result != TEE_SUCCESS) {
 		EMSG("Failed to populate signed public key to a transient key: 0x%x", result);
 		params[1].value.a = 0;
-		goto cleanup1;
+		goto cleanup;
 	}
 
 	result = TEE_CreatePersistentObject(TEE_STORAGE_PRIVATE, &signedPublicKeyId, sizeof(signedPublicKeyId),
@@ -322,15 +322,14 @@ static TEE_Result save_signed_public_key(uint32_t param_types, TEE_Param params[
 	if (result != TEE_SUCCESS) {
 		EMSG("Failed to create a persistent key: 0x%x", result);
 		params[1].value.a = 0;
-		goto cleanup1;
+		goto cleanup;
 	}
 
 	params[1].value.a = 1;
 	TEE_CloseObject(persistentKey);
 
-	cleanup1:
-	TEE_FreeTransientObject(transientKey);
 	cleanup:
+	TEE_FreeTransientObject(transientKey);
 	return result;
 
 }
