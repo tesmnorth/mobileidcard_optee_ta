@@ -291,7 +291,6 @@ static TEE_Result save_signed_public_key(uint32_t param_types, TEE_Param params[
 	TEE_Attribute secret_value;
 
 	uint32_t signedPublicKeyId = 0;
-	uint32_t signed_pk_len = 0;
 
 	uint32_t flags = TEE_DATA_FLAG_ACCESS_READ |
 			TEE_DATA_FLAG_ACCESS_WRITE |
@@ -306,13 +305,11 @@ static TEE_Result save_signed_public_key(uint32_t param_types, TEE_Param params[
 			TEE_PARAM_TYPE_NONE);
 
 	signedPublicKeyId = SIGNED_PUBLIC_KEY_ID;
-	signed_pk_len = params[0].memref.size;
 
 	if (param_types != exp_param_types)
 		return TEE_ERROR_BAD_PARAMETERS;
 
-	DMSG("TESSSSSSSSSSSSSSSSSSSTTTTTTTTTTTTTTTTTTTT %i", signed_pk_len);
-	result = TEE_AllocateTransientObject(TEE_TYPE_DATA, signed_pk_len, &transientKey);
+	result = TEE_AllocateTransientObject(TEE_TYPE_DATA, 0, &transientKey);
 
 	if (result != TEE_SUCCESS) {
 		EMSG("Failed to allocate transient object handle : 0x%x", result);
