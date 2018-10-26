@@ -325,7 +325,7 @@ static TEE_Result save_signed_public_key(uint32_t param_types, TEE_Param params[
 
 	result = TEE_PopulateTransientObject(transientKey, &secret_value, 1);
 	if (result != TEE_SUCCESS) {
-		EMSG("Failed to populated signed public key to a transient key: 0x%x", result);
+		EMSG("Failed to populate signed public key to a transient key: 0x%x", result);
 		params[1].value.a = 0;
 		goto cleanup1;
 	}
