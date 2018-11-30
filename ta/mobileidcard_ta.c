@@ -507,7 +507,7 @@ static TEE_Result sign_message(uint32_t param_types, TEE_Param params[4])
 	uint8_t *message;
 	uint32_t message_len = 0;
 
-	uint8_t *signed_message = NULL;
+	uint8_t *signed_message;
 	uint32_t signed_message_len = 0;
 
 	uint32_t exp_param_types = TEE_PARAM_TYPES(
@@ -522,8 +522,8 @@ static TEE_Result sign_message(uint32_t param_types, TEE_Param params[4])
 	message = params[0].memref.buffer;
 	message_len = params[0].memref.size;
 
-	uint8_t *signed_message = params[1].memref.buffer;
-	uint32_t signed_message_len = params[1].memref.size;
+	signed_message = params[1].memref.buffer;
+	signed_message_len = params[1].memref.size;
 
 	keyId = RSA_KEY_ID;
 
