@@ -490,6 +490,89 @@ static TEE_Result verify_message(uint32_t param_types, TEE_Param params[4])
 	return result;
 }
 
+static TEE_Result sign_message(uint32_t param_types, TEE_Param params[4])
+{
+
+	TEE_OperationHandle operation = (TEE_OperationHandle) NULL;
+	TEE_Result result = TEE_SUCCESS;
+	TEE_ObjectHandle key_handle = (TEE_ObjectHandle)NULL;
+	uint32_t keyId = 0;
+
+	uint32_t flags = TEE_DATA_FLAG_ACCESS_READ |
+			TEE_DATA_FLAG_ACCESS_WRITE |
+			TEE_DATA_FLAG_ACCESS_WRITE_META |
+			TEE_DATA_FLAG_SHARE_READ |
+			TEE_DATA_FLAG_SHARE_WRITE;
+
+	uint8_t *message;
+	uint32_t message_len = 0;
+
+	uint8_t *signed_message = NULL;
+	uint32_t signed_message_len = 0;
+
+	uint32_t exp_param_types = TEE_PARAM_TYPES(
+			TEE_PARAM_TYPE_MEMREF_INPUT,
+			TEE_PARAM_TYPE_MEMREF_OUTPUT,
+			TEE_PARAM_TYPE_VALUE_OUTPUT,
+			TEE_PARAM_TYPE_NONE);
+
+	if (param_types != exp_param_types)
+		return TEE_ERROR_BAD_PARAMETERS;
+
+	message = params[0].memref.buffer;
+	message_len = params[0].memref.size;
+
+	uint8_t *signed_message = params[1].memref.buffer;
+	uint32_t signed_message_len = params[1].memref.size;
+
+	keyId = RSA_KEY_ID;
+
+	result = TEE_AllocateOperation(&operation, TEE_ALG_RSASSA_PKCS1_PSS_MGF1_SHA256,
+				TEE_MODE_SIGN, RSA_KEY_SIZE * 2);
+
+	if (result != TEE_SUCCESS) {
+		EMSG("Failed to allocate operation: 0x%x", result);
+		params[2].value.a = 0;
+		goto cleanup;
+	}
+
+	result = TEE_OpenPersistentObject(TEE_STORAGE_PRIVATE, &keyId,
+			sizeof(keyId), flags, &key_handle);
+
+	if (result != TEE_SUCCESS) {
+		EMSG("Failed to open persistent key: 0x%x", result);
+		params[2].value.a = 0;
+		goto cleanup1;
+	}
+
+	result = TEE_SetOperationKey(operation, key_handle);
+
+	if (result != TEE_SUCCESS) {
+		EMSG("Failed to set key: 0x%x", result);
+		params[2].value.a = 0;
+		goto cleanup2;
+	}
+
+	result = TEE_AsymmetricSignDigest(operation, (TEE_Attribute *)NULL, 0,
+			message, message_len, signed_message, &signed_message_len);
+
+	if (result == TEE_SUCCESS)
+	{
+		params[2].value.a = 1;
+	}
+	else
+	{
+		params[2].value.a = 0;
+	}
+
+	cleanup2:
+	TEE_CloseObject(key_handle);
+	cleanup1:
+	TEE_FreeOperation(operation);
+	cleanup:
+	return result;
+}
+
 TEE_Result TA_InvokeCommandEntryPoint(void *sess_ctx, uint32_t cmd_id,
 		uint32_t param_types, TEE_Param params[4])
 {
@@ -511,6 +594,8 @@ TEE_Result TA_InvokeCommandEntryPoint(void *sess_ctx, uint32_t cmd_id,
 			return save_signed_public_key(param_types, params);
 		case TA_GET_SIGNED_PUBLIC_KEY_CMD:
 			return get_signed_public_key(param_types, params);
+		case TA_SIGN_CMD:
+			return sign_message(param_types, params);
 		default:
 			return TEE_ERROR_BAD_PARAMETERS;
 	}
