@@ -528,7 +528,7 @@ static TEE_Result sign_message(uint32_t param_types, TEE_Param params[4])
 	keyId = RSA_KEY_ID;
 
 	result = TEE_AllocateOperation(&operation, TEE_ALG_RSASSA_PKCS1_PSS_MGF1_SHA256,
-				TEE_MODE_SIGN, RSA_KEY_SIZE * 2);
+				TEE_MODE_SIGN, RSA_KEY_SIZE);
 
 	if (result != TEE_SUCCESS) {
 		EMSG("Failed to allocate operation: 0x%x", result);
