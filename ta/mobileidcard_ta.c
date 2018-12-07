@@ -514,11 +514,10 @@ static TEE_Result sign_message(uint32_t param_types, TEE_Param params[4])
 			TEE_PARAM_TYPE_MEMREF_OUTPUT,
 			TEE_PARAM_TYPE_VALUE_OUTPUT,
 			TEE_PARAM_TYPE_NONE);
-	DMSG("SIGN METHODE GİRDİ");
-	if (param_types != exp_param_types) {
-		DMSG("PARAMETRE HATASU");
+
+	if (param_types != exp_param_types)
 		return TEE_ERROR_BAD_PARAMETERS;
-	}
+
 	message = params[0].memref.buffer;
 	message_len = params[0].memref.size;
 
@@ -535,7 +534,7 @@ static TEE_Result sign_message(uint32_t param_types, TEE_Param params[4])
 		params[2].value.a = 0;
 		goto cleanup;
 	}
-	DMSG("ALLOCATE TAMAM");
+
 	result = TEE_OpenPersistentObject(TEE_STORAGE_PRIVATE, &keyId,
 			sizeof(keyId), flags, &key_handle);
 
@@ -545,7 +544,6 @@ static TEE_Result sign_message(uint32_t param_types, TEE_Param params[4])
 		goto cleanup1;
 	}
 
-	DMSG("OPEN TAMAM");
 	result = TEE_SetOperationKey(operation, key_handle);
 
 	if (result != TEE_SUCCESS) {
@@ -554,7 +552,6 @@ static TEE_Result sign_message(uint32_t param_types, TEE_Param params[4])
 		goto cleanup2;
 	}
 
-	DMSG("SET TAMAM");
 	result = TEE_AsymmetricSignDigest(operation, (TEE_Attribute *)NULL, 0,
 			message, message_len, signed_message, &signed_message_len);
 
@@ -566,7 +563,7 @@ static TEE_Result sign_message(uint32_t param_types, TEE_Param params[4])
 	{
 		params[2].value.a = 0;
 	}
-	DMSG("HERŞEYTAMAM TAMAM");
+
 	cleanup2:
 	TEE_CloseObject(key_handle);
 	cleanup1:
