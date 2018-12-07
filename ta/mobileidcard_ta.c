@@ -577,12 +577,6 @@ static TEE_Result digest_message(uint32_t param_types, TEE_Param params[4])
 	TEE_OperationHandle operation = (TEE_OperationHandle) NULL;
 	TEE_Result result = TEE_SUCCESS;
 
-	uint32_t flags = TEE_DATA_FLAG_ACCESS_READ |
-			TEE_DATA_FLAG_ACCESS_WRITE |
-			TEE_DATA_FLAG_ACCESS_WRITE_META |
-			TEE_DATA_FLAG_SHARE_READ |
-			TEE_DATA_FLAG_SHARE_WRITE;
-
 	uint8_t *message;
 	uint32_t message_len = 0;
 
