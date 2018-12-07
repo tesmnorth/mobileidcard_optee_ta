@@ -444,7 +444,7 @@ static TEE_Result verify_message(uint32_t param_types, TEE_Param params[4])
 
 	keyId = RSA_KEY_ID;
 
-	result = TEE_AllocateOperation(&operation, TEE_ALG_RSASSA_PKCS1_PSS_MGF1_SHA256,
+	result = TEE_AllocateOperation(&operation, TEE_ALG_RSASSA_PKCS1_V1_5_SHA256,
 			TEE_MODE_VERIFY, RSA_KEY_SIZE * 2);
 
 	if (result != TEE_SUCCESS) {
