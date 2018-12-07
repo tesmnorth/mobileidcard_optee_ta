@@ -526,7 +526,7 @@ static TEE_Result sign_message(uint32_t param_types, TEE_Param params[4])
 
 	keyId = RSA_KEY_ID;
 
-	result = TEE_AllocateOperation(&operation, TEE_ALG_RSASSA_PKCS1_PSS_MGF1_SHA256,
+	result = TEE_AllocateOperation(&operation, TEE_ALG_RSASSA_PKCS1_V1_5_SHA256,
 				TEE_MODE_SIGN, RSA_KEY_SIZE);
 
 	if (result != TEE_SUCCESS) {
@@ -572,6 +572,61 @@ static TEE_Result sign_message(uint32_t param_types, TEE_Param params[4])
 	return result;
 }
 
+static TEE_Result digest_message(uint32_t param_types, TEE_Param params[4])
+{
+	TEE_OperationHandle operation = (TEE_OperationHandle) NULL;
+	TEE_Result result = TEE_SUCCESS;
+
+	uint32_t flags = TEE_DATA_FLAG_ACCESS_READ |
+			TEE_DATA_FLAG_ACCESS_WRITE |
+			TEE_DATA_FLAG_ACCESS_WRITE_META |
+			TEE_DATA_FLAG_SHARE_READ |
+			TEE_DATA_FLAG_SHARE_WRITE;
+
+	uint8_t *message;
+	uint32_t message_len = 0;
+
+	uint8_t *digest;
+	uint32_t digest_len = 0;
+
+	uint32_t exp_param_types = TEE_PARAM_TYPES(
+			TEE_PARAM_TYPE_MEMREF_INPUT,
+			TEE_PARAM_TYPE_MEMREF_OUTPUT,
+			TEE_PARAM_TYPE_VALUE_OUTPUT,
+			TEE_PARAM_TYPE_NONE);
+
+	if (param_types != exp_param_types)
+		return TEE_ERROR_BAD_PARAMETERS;
+
+	message = params[0].memref.buffer;
+	message_len = params[0].memref.size;
+
+	digest = params[1].memref.buffer;
+	digest_len = params[1].memref.size;
+
+	result = TEE_AllocateOperation(&operation, TEE_ALG_SHA256, TEE_MODE_DIGEST, 0);
+
+	if (result != TEE_SUCCESS) {
+		EMSG("Failed to allocate operation: 0x%x", result);
+		params[2].value.a = 0;
+		goto cleanup;
+	}
+
+	result = TEE_DigestDoFinal(operation, message, message_len, digest, &digest_len);
+
+	if (result == TEE_SUCCESS)
+	{
+		params[2].value.a = 1;
+	}
+	else
+	{
+		params[2].value.a = 0;
+	}
+
+	cleanup:
+	return result;
+}
+
 TEE_Result TA_InvokeCommandEntryPoint(void *sess_ctx, uint32_t cmd_id,
 		uint32_t param_types, TEE_Param params[4])
 {
@@ -594,8 +649,9 @@ TEE_Result TA_InvokeCommandEntryPoint(void *sess_ctx, uint32_t cmd_id,
 		case TA_GET_SIGNED_PUBLIC_KEY_CMD:
 			return get_signed_public_key(param_types, params);
 		case TA_SIGN_CMD:
-			DMSG("CASE GİRDİ");
 			return sign_message(param_types, params);
+		case TA_DIGEST_CMD:
+			return digest_message(param_types, params);
 		default:
 			return TEE_ERROR_BAD_PARAMETERS;
 	}
