@@ -492,8 +492,6 @@ static TEE_Result verify_message(uint32_t param_types, TEE_Param params[4])
 
 static TEE_Result sign_message(uint32_t param_types, TEE_Param params[4])
 {
-	DMSG("SIGN METHODE GİRDİ");
-
 	TEE_OperationHandle operation = (TEE_OperationHandle) NULL;
 	TEE_Result result = TEE_SUCCESS;
 	TEE_ObjectHandle key_handle = (TEE_ObjectHandle)NULL;
@@ -516,7 +514,7 @@ static TEE_Result sign_message(uint32_t param_types, TEE_Param params[4])
 			TEE_PARAM_TYPE_MEMREF_OUTPUT,
 			TEE_PARAM_TYPE_VALUE_OUTPUT,
 			TEE_PARAM_TYPE_NONE);
-
+	DMSG("SIGN METHODE GİRDİ");
 	if (param_types != exp_param_types) {
 		DMSG("PARAMETRE HATASU");
 		return TEE_ERROR_BAD_PARAMETERS;
