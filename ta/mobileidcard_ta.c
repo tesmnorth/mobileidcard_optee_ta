@@ -168,11 +168,11 @@ static TEE_Result delete_rsa_key(uint32_t param_types, TEE_Param params[4])
 	return result;
 }
 
-static TEE_Result delete_signed_public_key(uint32_t param_types, TEE_Param params[4])
+static TEE_Result delete_certificate(uint32_t param_types, TEE_Param params[4])
 {
 	TEE_Result result = TEE_SUCCESS;
-	TEE_ObjectHandle signed_public_key_handle = (TEE_ObjectHandle)NULL;
-	uint32_t signedPublicKeyId = 0;
+	TEE_ObjectHandle cert_handle = (TEE_ObjectHandle)NULL;
+	uint32_t cert_id = 0;
 
 	uint32_t flags = TEE_DATA_FLAG_ACCESS_READ |
 			TEE_DATA_FLAG_ACCESS_WRITE |
@@ -186,13 +186,13 @@ static TEE_Result delete_signed_public_key(uint32_t param_types, TEE_Param param
 			TEE_PARAM_TYPE_NONE,
 			TEE_PARAM_TYPE_NONE);
 
-	signedPublicKeyId = SIGNED_PUBLIC_KEY_ID;
+	cert_id = CERT_ID;
 
 	if (param_types != exp_param_types)
 		return TEE_ERROR_BAD_PARAMETERS;
 
-	result = TEE_OpenPersistentObject(TEE_STORAGE_PRIVATE, &signedPublicKeyId, sizeof(signedPublicKeyId),
-			flags, &signed_public_key_handle);
+	result = TEE_OpenPersistentObject(TEE_STORAGE_PRIVATE, &cert_id, sizeof(cert_id),
+			flags, &cert_handle);
 
 	if (result != TEE_SUCCESS)
 	{
@@ -202,7 +202,7 @@ static TEE_Result delete_signed_public_key(uint32_t param_types, TEE_Param param
 	}
 
 	params[0].value.a = 1;
-	TEE_CloseAndDeletePersistentObject(signed_public_key_handle);
+	TEE_CloseAndDeletePersistentObject(cert_handle);
 
 	cleanup:
 	return result;
@@ -281,7 +281,7 @@ static TEE_Result get_public_key_exponent_modulus(uint32_t param_types, TEE_Para
 	return result;
 }
 
-static TEE_Result save_signed_public_key(uint32_t param_types, TEE_Param params[4])
+static TEE_Result save_certificate(uint32_t param_types, TEE_Param params[4])
 {
 	TEE_Result result = TEE_SUCCESS;
 	TEE_ObjectHandle transientKey = (TEE_ObjectHandle)NULL;
@@ -289,7 +289,7 @@ static TEE_Result save_signed_public_key(uint32_t param_types, TEE_Param params[
 
 	uint8_t *buffer;
 	uint32_t buffer_len;
-	uint32_t signedPublicKeyId = 0;
+	uint32_t cert_id = 0;
 
 	uint32_t flags = TEE_DATA_FLAG_ACCESS_READ |
 			TEE_DATA_FLAG_ACCESS_WRITE |
@@ -306,11 +306,11 @@ static TEE_Result save_signed_public_key(uint32_t param_types, TEE_Param params[
 	if (param_types != exp_param_types)
 		return TEE_ERROR_BAD_PARAMETERS;
 
-	signedPublicKeyId = SIGNED_PUBLIC_KEY_ID;
+	cert_id =  CERT_ID;
 	buffer = params[0].memref.buffer;
 	buffer_len = params[0].memref.size;
 
-	result = TEE_CreatePersistentObject(TEE_STORAGE_PRIVATE, &signedPublicKeyId, sizeof(signedPublicKeyId),
+	result = TEE_CreatePersistentObject(TEE_STORAGE_PRIVATE, &cert_id, sizeof(cert_id),
 			flags, TEE_HANDLE_NULL,  NULL, 0, &persistentKey);
 	if (result != TEE_SUCCESS) {
 		EMSG("Failed to create a persistent key: 0x%x", result);
@@ -335,17 +335,17 @@ static TEE_Result save_signed_public_key(uint32_t param_types, TEE_Param params[
 
 }
 
-static TEE_Result get_signed_public_key(uint32_t param_types, TEE_Param params[4])
+static TEE_Result get_certificate(uint32_t param_types, TEE_Param params[4])
 {
 	TEE_Result result = TEE_SUCCESS;
-	TEE_ObjectHandle signed_pk_handle = (TEE_ObjectHandle)NULL;
+	TEE_ObjectHandle cert_handle = (TEE_ObjectHandle)NULL;
 	TEE_ObjectInfo object_info;
 
 	uint32_t read_bytes;
 	uint8_t *buffer;
 	uint32_t buffer_len = 0;
 
-	uint32_t signed_pk_id;
+	uint32_t cert_id;
 
 	uint32_t flags = TEE_DATA_FLAG_ACCESS_READ |
 			TEE_DATA_FLAG_ACCESS_WRITE |
@@ -362,13 +362,13 @@ static TEE_Result get_signed_public_key(uint32_t param_types, TEE_Param params[4
 	if (param_types != exp_param_types)
 		return TEE_ERROR_BAD_PARAMETERS;
 
-	signed_pk_id = SIGNED_PUBLIC_KEY_ID;
+	cert_id = CERT_ID;
 
 	buffer = params[0].memref.buffer;
 	buffer_len = params[0].memref.size;
 
-	result = TEE_OpenPersistentObject(TEE_STORAGE_PRIVATE, &signed_pk_id, sizeof(signed_pk_id),
-			flags, &signed_pk_handle);
+	result = TEE_OpenPersistentObject(TEE_STORAGE_PRIVATE, &cert_id, sizeof(cert_id),
+			flags, &cert_handle);
 	if (result != TEE_SUCCESS)
 	{
 		EMSG("Failed to open object handle : 0x%x", result);
@@ -376,7 +376,7 @@ static TEE_Result get_signed_public_key(uint32_t param_types, TEE_Param params[4
 		goto cleanup;
 	}
 
-	result = TEE_GetObjectInfo1(signed_pk_handle, &object_info);
+	result = TEE_GetObjectInfo1(cert_handle, &object_info);
 	if (result != TEE_SUCCESS ) {
 		EMSG("Failed to get object info. TEE_GetObjectInfo1 res:0x%x ", result);
 		params[1].value.a = 0;
@@ -390,7 +390,7 @@ static TEE_Result get_signed_public_key(uint32_t param_types, TEE_Param params[4
 		goto cleanup1;
 	}
 
-	result  = TEE_ReadObjectData(signed_pk_handle, buffer, object_info.dataSize, &read_bytes);
+	result  = TEE_ReadObjectData(cert_handle, buffer, object_info.dataSize, &read_bytes);
 
 	if (result != TEE_SUCCESS || read_bytes != object_info.dataSize) {
 		EMSG("TEE_ReadObjectData failed 0x%08x, read %u over %u", result, read_bytes, object_info.dataSize);
@@ -402,7 +402,7 @@ static TEE_Result get_signed_public_key(uint32_t param_types, TEE_Param params[4
 	params[1].value.a = 1;
 
 	cleanup1:
-	TEE_CloseObject(signed_pk_handle);
+	TEE_CloseObject(cert_handle);
 	cleanup:
 	return result;
 
@@ -444,7 +444,7 @@ static TEE_Result verify_message(uint32_t param_types, TEE_Param params[4])
 
 	keyId = RSA_KEY_ID;
 
-	result = TEE_AllocateOperation(&operation, TEE_ALG_RSASSA_PKCS1_V1_5_SHA256,
+	result = TEE_AllocateOperation(&operation, TEE_ALG_RSASSA_PKCS1_PSS_MGF1_SHA256,
 			TEE_MODE_VERIFY, RSA_KEY_SIZE * 2);
 
 	if (result != TEE_SUCCESS) {
@@ -526,7 +526,7 @@ static TEE_Result sign_message(uint32_t param_types, TEE_Param params[4])
 
 	keyId = RSA_KEY_ID;
 
-	result = TEE_AllocateOperation(&operation, TEE_ALG_RSASSA_PKCS1_V1_5_SHA256,
+	result = TEE_AllocateOperation(&operation, TEE_ALG_RSASSA_PKCS1_PSS_MGF1_SHA256,
 				TEE_MODE_SIGN, RSA_KEY_SIZE);
 
 	if (result != TEE_SUCCESS) {
@@ -632,16 +632,16 @@ TEE_Result TA_InvokeCommandEntryPoint(void *sess_ctx, uint32_t cmd_id,
 			return generate_and_save_rsa_key(param_types, params);
 		case TA_DELETE_RSA_KEY_CMD:
 			return delete_rsa_key(param_types, params);
-		case TA_DELETE_SIGNED_PUBLIC_KEY_CMD:
-			return delete_signed_public_key(param_types, params);
+		case TA_DELETE_CERTIFICATE_CMD:
+			return delete_certificate(param_types, params);
 		case TA_GET_PUBLICKEY_EXP_MOD_CMD:
 			return get_public_key_exponent_modulus(param_types, params);
 		case TA_VERIFY_CMD:
 			return verify_message(param_types, params);
-		case TA_SAVE_SIGNED_PUBLIC_KEY_CMD:
-			return save_signed_public_key(param_types, params);
-		case TA_GET_SIGNED_PUBLIC_KEY_CMD:
-			return get_signed_public_key(param_types, params);
+		case TA_SAVE_CERTIFICATE_CMD:
+			return save_certificate(param_types, params);
+		case TA_GET_CERTIFICATE_CMD:
+			return get_certificate(param_types, params);
 		case TA_SIGN_CMD:
 			return sign_message(param_types, params);
 		case TA_DIGEST_CMD:
