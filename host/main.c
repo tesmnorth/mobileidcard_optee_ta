@@ -145,7 +145,7 @@ void getPublicKey(uint32_t keyId)
 	TEEC_FinalizeContext(&context);
 }
 
-int main (int argc, char *argv[])
+int main (void)
 {
 	uint32_t keyId = 100;
 	generateAndSaveKey(keyId);
