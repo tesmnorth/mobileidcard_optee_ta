@@ -15,17 +15,26 @@ static TEE_Result check_obj(TEE_ObjectInfo *o1, TEE_ObjectInfo *o2)
 	return TEE_SUCCESS;
 }
 
+/**
+ * This function is Trusted App Standart Function
+ */
 TEE_Result TA_CreateEntryPoint(void)
 {
 	DMSG("has been called");
 	return TEE_SUCCESS;
 }
 
+/**
+ * This function is Trusted App Standart Function
+ */
 void TA_DestroyEntryPoint(void)
 {
 	DMSG("has been called");
 }
 
+/**
+ * This function is Trusted App Standart Function
+ */
 TEE_Result TA_OpenSessionEntryPoint(uint32_t param_types, TEE_Param params[4],
 		void **sess_ctx)
 {
@@ -56,7 +65,12 @@ void TA_CloseSessionEntryPoint(void * sess_ctx)
 	(void)&sess_ctx;
 	DMSG("Goodbye!\n");
 }
-
+/**
+ * Generates and saves 2048 bit RSA Key pair.
+ * @params param_types - given parameter types on Client App
+ * @params params[] - parameter values according to  types
+ * @returns TEE_Result object
+ */
 static TEE_Result generate_and_save_rsa_key(uint32_t param_types, TEE_Param params[4])
 {
 	TEE_Result result = TEE_SUCCESS;
@@ -66,6 +80,7 @@ static TEE_Result generate_and_save_rsa_key(uint32_t param_types, TEE_Param para
 	TEE_ObjectInfo keyInfo2;
 	uint32_t keyId = 0;
 
+	//Stroage accessibility
 	uint32_t flags = TEE_DATA_FLAG_ACCESS_READ |
 			TEE_DATA_FLAG_ACCESS_WRITE |
 			TEE_DATA_FLAG_ACCESS_WRITE_META |
@@ -83,6 +98,7 @@ static TEE_Result generate_and_save_rsa_key(uint32_t param_types, TEE_Param para
 	if (param_types != exp_param_types)
 		return TEE_ERROR_BAD_PARAMETERS;
 
+	//allocates a object with its size
 	result = TEE_AllocateTransientObject(TEE_TYPE_RSA_KEYPAIR, RSA_KEY_SIZE, &transientKey);
 
 	if (result != TEE_SUCCESS) {
@@ -91,6 +107,7 @@ static TEE_Result generate_and_save_rsa_key(uint32_t param_types, TEE_Param para
 		goto cleanup;
 	}
 
+	//Generates a RSA Key Pair
 	result = TEE_GenerateKey(transientKey, RSA_KEY_SIZE, NULL, 0);
 
 	if (result != TEE_SUCCESS) {
@@ -100,6 +117,8 @@ static TEE_Result generate_and_save_rsa_key(uint32_t param_types, TEE_Param para
 	}
 
 	TEE_GetObjectInfo1(transientKey, &keyInfo);
+
+	//Saves RSA Key Pair on private storage persistently
 	result = TEE_CreatePersistentObject(TEE_STORAGE_PRIVATE, &keyId, sizeof(keyId),
 			flags, transientKey, NULL, 0, &persistentKey);
 
@@ -118,6 +137,7 @@ static TEE_Result generate_and_save_rsa_key(uint32_t param_types, TEE_Param para
 		goto cleanup2;
 	}
 
+	//return message for CA
 	params[0].value.a = 1;
 
 	cleanup2:
@@ -128,6 +148,12 @@ static TEE_Result generate_and_save_rsa_key(uint32_t param_types, TEE_Param para
 	return result;
 }
 
+/**
+ * Deletes RSA Key pair.
+ * @params param_types - given parameter types on Client App
+ * @params params[] - parameter values according to  types
+ * @returns TEE_Result object
+ */
 static TEE_Result delete_rsa_key(uint32_t param_types, TEE_Param params[4])
 {
 	TEE_Result result = TEE_SUCCESS;
@@ -146,11 +172,13 @@ static TEE_Result delete_rsa_key(uint32_t param_types, TEE_Param params[4])
 			TEE_PARAM_TYPE_NONE,
 			TEE_PARAM_TYPE_NONE);
 
+	//Pre-defined storage id on header file
 	keyId = RSA_KEY_ID;
 
 	if (param_types != exp_param_types)
 		return TEE_ERROR_BAD_PARAMETERS;
 
+	//Opens RSA Key pair on private storage for deleting
 	result = TEE_OpenPersistentObject(TEE_STORAGE_PRIVATE, &keyId, sizeof(keyId),
 			flags, &key_handle);
 
@@ -161,13 +189,21 @@ static TEE_Result delete_rsa_key(uint32_t param_types, TEE_Param params[4])
 		goto cleanup;
 	}
 
+	//Return value for CA
 	params[0].value.a = 1;
+	//Deletes RSA Key Pair
 	TEE_CloseAndDeletePersistentObject(key_handle);
 
 	cleanup:
 	return result;
 }
 
+/**
+ * Deletes saved certificate
+ * @params param_types - given parameter types on Client App
+ * @params params[] - parameter values according to  types
+ * @returns TEE_Result object
+ */
 static TEE_Result delete_certificate(uint32_t param_types, TEE_Param params[4])
 {
 	TEE_Result result = TEE_SUCCESS;
@@ -186,11 +222,13 @@ static TEE_Result delete_certificate(uint32_t param_types, TEE_Param params[4])
 			TEE_PARAM_TYPE_NONE,
 			TEE_PARAM_TYPE_NONE);
 
+	//Pre-defined storage id on header file
 	cert_id = CERT_ID;
 
 	if (param_types != exp_param_types)
 		return TEE_ERROR_BAD_PARAMETERS;
 
+	//Opens certificate on private storage for deleting
 	result = TEE_OpenPersistentObject(TEE_STORAGE_PRIVATE, &cert_id, sizeof(cert_id),
 			flags, &cert_handle);
 
@@ -201,13 +239,21 @@ static TEE_Result delete_certificate(uint32_t param_types, TEE_Param params[4])
 		goto cleanup;
 	}
 
+	//Return value for CA
 	params[0].value.a = 1;
+	//Deletes certificate
 	TEE_CloseAndDeletePersistentObject(cert_handle);
 
 	cleanup:
 	return result;
 }
 
+/**
+ * Gets public exponent and modulus
+ * @params param_types - given parameter types on Client App
+ * @params params[] - parameter values according to  types
+ * @returns TEE_Result object
+ */
 static TEE_Result get_public_key_exponent_modulus(uint32_t param_types, TEE_Param params[4])
 {
 	TEE_Result result = TEE_SUCCESS;
@@ -281,6 +327,12 @@ static TEE_Result get_public_key_exponent_modulus(uint32_t param_types, TEE_Para
 	return result;
 }
 
+/**
+ * Saves certificate
+ * @params param_types - given parameter types on Client App
+ * @params params[] - parameter values according to  types
+ * @returns TEE_Result object
+ */
 static TEE_Result save_certificate(uint32_t param_types, TEE_Param params[4])
 {
 	TEE_Result result = TEE_SUCCESS;
@@ -310,6 +362,7 @@ static TEE_Result save_certificate(uint32_t param_types, TEE_Param params[4])
 	buffer = params[0].memref.buffer;
 	buffer_len = params[0].memref.size;
 
+	//Creates a new persistent object
 	result = TEE_CreatePersistentObject(TEE_STORAGE_PRIVATE, &cert_id, sizeof(cert_id),
 			flags, TEE_HANDLE_NULL,  NULL, 0, &persistentKey);
 	if (result != TEE_SUCCESS) {
@@ -318,6 +371,7 @@ static TEE_Result save_certificate(uint32_t param_types, TEE_Param params[4])
 		goto cleanup;
 	}
 
+	//Writes certificate to persistent object
 	result = TEE_WriteObjectData(persistentKey, buffer, buffer_len);
 	if (result != TEE_SUCCESS) {
 		EMSG("Failed to write data to  a persistent key: 0x%x", result);
@@ -325,6 +379,7 @@ static TEE_Result save_certificate(uint32_t param_types, TEE_Param params[4])
 		goto cleanup1;
 	}
 
+	//Return value for CA
 	params[1].value.a = 1;
 
 	cleanup1:
@@ -335,6 +390,12 @@ static TEE_Result save_certificate(uint32_t param_types, TEE_Param params[4])
 
 }
 
+/**
+ * Gets certificates
+ * @params param_types - given parameter types on Client App
+ * @params params[] - parameter values according to  types
+ * @returns TEE_Result object
+ */
 static TEE_Result get_certificate(uint32_t param_types, TEE_Param params[4])
 {
 	TEE_Result result = TEE_SUCCESS;
@@ -362,11 +423,13 @@ static TEE_Result get_certificate(uint32_t param_types, TEE_Param params[4])
 	if (param_types != exp_param_types)
 		return TEE_ERROR_BAD_PARAMETERS;
 
+	//Pre-defined storage id on header file
 	cert_id = CERT_ID;
 
 	buffer = params[0].memref.buffer;
 	buffer_len = params[0].memref.size;
 
+	//Opens certificate on private storage for getting
 	result = TEE_OpenPersistentObject(TEE_STORAGE_PRIVATE, &cert_id, sizeof(cert_id),
 			flags, &cert_handle);
 	if (result != TEE_SUCCESS)
@@ -376,6 +439,7 @@ static TEE_Result get_certificate(uint32_t param_types, TEE_Param params[4])
 		goto cleanup;
 	}
 
+	//Gets certificate handle
 	result = TEE_GetObjectInfo1(cert_handle, &object_info);
 	if (result != TEE_SUCCESS ) {
 		EMSG("Failed to get object info. TEE_GetObjectInfo1 res:0x%x ", result);
@@ -390,6 +454,7 @@ static TEE_Result get_certificate(uint32_t param_types, TEE_Param params[4])
 		goto cleanup1;
 	}
 
+	//Reads object to buffer
 	result  = TEE_ReadObjectData(cert_handle, buffer, object_info.dataSize, &read_bytes);
 
 	if (result != TEE_SUCCESS || read_bytes != object_info.dataSize) {
@@ -408,6 +473,12 @@ static TEE_Result get_certificate(uint32_t param_types, TEE_Param params[4])
 
 }
 
+/**
+ * Verifies given plain message and its signed message in params[]
+ * @params param_types - given parameter types on Client App
+ * @params params[] - parameter values according to  types
+ * @returns TEE_Result object
+ */
 static TEE_Result verify_message(uint32_t param_types, TEE_Param params[4])
 {
 	TEE_OperationHandle operation = (TEE_OperationHandle) NULL;
@@ -444,6 +515,7 @@ static TEE_Result verify_message(uint32_t param_types, TEE_Param params[4])
 
 	keyId = RSA_KEY_ID;
 
+	//Allocates an operationg with Algorithm and Operation type
 	result = TEE_AllocateOperation(&operation, TEE_ALG_RSASSA_PKCS1_PSS_MGF1_SHA256,
 			TEE_MODE_VERIFY, RSA_KEY_SIZE * 2);
 
@@ -453,6 +525,7 @@ static TEE_Result verify_message(uint32_t param_types, TEE_Param params[4])
 		goto cleanup;
 	}
 
+	//Opens RSA key pair for verifing message
 	result = TEE_OpenPersistentObject(TEE_STORAGE_PRIVATE, &keyId,
 			sizeof(keyId), flags, &key_handle);
 
@@ -462,6 +535,7 @@ static TEE_Result verify_message(uint32_t param_types, TEE_Param params[4])
 		goto cleanup1;
 	}
 
+	//Sets RSA Key pair for verifing operation
 	result = TEE_SetOperationKey(operation, key_handle);
 
 	if (result != TEE_SUCCESS) {
@@ -470,9 +544,11 @@ static TEE_Result verify_message(uint32_t param_types, TEE_Param params[4])
 		goto cleanup2;
 	}
 
+	//Verifing process
 	result = TEE_AsymmetricVerifyDigest(operation, (TEE_Attribute *)NULL, 0,
 			message, message_len, signed_message, signed_message_len);
 
+	//Return value for CA
 	if (result == TEE_SUCCESS)
 	{
 		params[2].value.a = 1;
@@ -490,6 +566,12 @@ static TEE_Result verify_message(uint32_t param_types, TEE_Param params[4])
 	return result;
 }
 
+/**
+ * Signs given hash  message  in params[]
+ * @params param_types - given parameter types on Client App
+ * @params params[] - parameter values according to  types
+ * @returns TEE_Result object
+ */
 static TEE_Result sign_message(uint32_t param_types, TEE_Param params[4])
 {
 	TEE_OperationHandle operation = (TEE_OperationHandle) NULL;
@@ -526,6 +608,7 @@ static TEE_Result sign_message(uint32_t param_types, TEE_Param params[4])
 
 	keyId = RSA_KEY_ID;
 
+	//Allocates an operationg with Algorithm and Operation type
 	result = TEE_AllocateOperation(&operation, TEE_ALG_RSASSA_PKCS1_PSS_MGF1_SHA256,
 				TEE_MODE_SIGN, RSA_KEY_SIZE);
 
@@ -535,6 +618,7 @@ static TEE_Result sign_message(uint32_t param_types, TEE_Param params[4])
 		goto cleanup;
 	}
 
+	//Opens RSA key pair for signing message
 	result = TEE_OpenPersistentObject(TEE_STORAGE_PRIVATE, &keyId,
 			sizeof(keyId), flags, &key_handle);
 
@@ -544,6 +628,7 @@ static TEE_Result sign_message(uint32_t param_types, TEE_Param params[4])
 		goto cleanup1;
 	}
 
+	//Sets RSA Key pair for signing operation
 	result = TEE_SetOperationKey(operation, key_handle);
 
 	if (result != TEE_SUCCESS) {
@@ -552,9 +637,11 @@ static TEE_Result sign_message(uint32_t param_types, TEE_Param params[4])
 		goto cleanup2;
 	}
 
+	//Signing process
 	result = TEE_AsymmetricSignDigest(operation, (TEE_Attribute *)NULL, 0,
 			message, message_len, signed_message, &signed_message_len);
 
+	//Return value for CA
 	if (result == TEE_SUCCESS)
 	{
 		params[2].value.a = 1;
@@ -572,6 +659,12 @@ static TEE_Result sign_message(uint32_t param_types, TEE_Param params[4])
 	return result;
 }
 
+/**
+ * Gives hash of plaing text with SHA 256
+ * @params param_types - given parameter types on Client App
+ * @params params[] - parameter values according to  types
+ * @returns TEE_Result object
+ */
 static TEE_Result digest_message(uint32_t param_types, TEE_Param params[4])
 {
 	TEE_OperationHandle operation = (TEE_OperationHandle) NULL;
@@ -598,6 +691,7 @@ static TEE_Result digest_message(uint32_t param_types, TEE_Param params[4])
 	digest = params[1].memref.buffer;
 	digest_len = params[1].memref.size;
 
+	//Allocates operation with algorithm
 	result = TEE_AllocateOperation(&operation, TEE_ALG_SHA256, TEE_MODE_DIGEST, 0);
 
 	if (result != TEE_SUCCESS) {
@@ -606,8 +700,10 @@ static TEE_Result digest_message(uint32_t param_types, TEE_Param params[4])
 		goto cleanup;
 	}
 
+	//Digest process
 	result = TEE_DigestDoFinal(operation, message, message_len, digest, &digest_len);
 
+	//Return value for CA
 	if (result == TEE_SUCCESS)
 	{
 		params[2].value.a = 1;
@@ -621,6 +717,9 @@ static TEE_Result digest_message(uint32_t param_types, TEE_Param params[4])
 	return result;
 }
 
+/**
+ * This function is Trusted App Standart Function
+ */
 TEE_Result TA_InvokeCommandEntryPoint(void *sess_ctx, uint32_t cmd_id,
 		uint32_t param_types, TEE_Param params[4])
 {
